@@ -4,9 +4,11 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.registry.Registrable
 import com.willfp.libreforge.ViolationContext
 import com.willfp.libreforge.counters.Counters
+import ru.oftendev.xbattlepass.battlepass.TierType
+import ru.oftendev.xbattlepass.battlepass.Tiered
 import ru.oftendev.xbattlepass.plugin
 
-class BattleTask(private val _id: String, val config: Config): Registrable {
+class BattleTask(private val _id: String, val config: Config): Registrable, Tiered {
     override fun getID(): String {
         return this._id
     }
@@ -15,5 +17,7 @@ class BattleTask(private val _id: String, val config: Config): Registrable {
         Counters.compile(it, ViolationContext(plugin, "xBattlepass task $id"))
     }
 
-
+    override val tier: TierType = TierType.entries.first {
+        it.name.equals(config.getString("tier"), true)
+    }
 }
