@@ -1,0 +1,13 @@
+display:
+  display-name: Sparkle Fruit
+  lore:
+    - "&7Eat %required% golden apples"
+    - "&7%current%/%required%"
+
+xp-gain-methods:
+  - trigger: consume
+    multiplier: 1
+    filters:
+      items:
+        - GOLDEN_APPLE
+        - ENCHANTED_GOLDEN_APPLE
