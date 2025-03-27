@@ -121,9 +121,9 @@ tiers-gui:
       lore:
         - "&7Rewards:"
         - " &7* Free:"
-        - "   &7%free-rewards%"
+        - "   %free-rewards%"
         - " &7* Premium:"
-        - "   &7%premium-rewards%"
+        - "   %premium-rewards%"
         - ""
         - "&aCLAIM"
 
@@ -133,9 +133,9 @@ tiers-gui:
       lore:
         - "&7Rewards:"
         - " &7* Free:"
-        - "   &7%free-rewards%"
+        - "   %free-rewards%"
         - " &7* Premium:"
-        - "   &7%premium-rewards%"
+        - "   %premium-rewards%"
         - ""
         - "&fProgress:"
         - "&8» &e%percentage_progress%%"
@@ -145,6 +145,12 @@ tiers-gui:
       item: red_stained_glass_pane
       name: "&cTier %tier_numeral%"
       lore:
+        - "&7Rewards:"
+        - " &7* Free:"
+        - "   %free-rewards%"
+        - " &7* Premium:"
+        - "   %premium-rewards%"
+        - ""
         - "&cLOCKED"
 
     claimed:
@@ -153,9 +159,9 @@ tiers-gui:
       lore:
         - "&7Rewards:"
         - " &7* Free:"
-        - "   &7%free-rewards%"
+        - "   %free-rewards%"
         - " &7* Premium:"
-        - "   &7%premium-rewards%"
+        - "   %premium-rewards%"
         - ""
         - "&aCLAIMED"
 
