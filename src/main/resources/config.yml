@@ -188,6 +188,8 @@ categories-gui:
     # Categories are sorted in the order they are in the categories.yml file.
       - "111111111"
       - "1c1c1c1c1"
+      - "1c1c1c1c1"
+      - "111111111"
       - "111111111"
   next-page:
     item:
@@ -196,7 +198,7 @@ categories-gui:
     lore:
       active: [ ]
       inactive: [ ]
-    row: 3
+    row: 5
     column: 6
   prev-page:
     item:
@@ -205,7 +207,7 @@ categories-gui:
     lore:
       active: [ ]
       inactive: [ ]
-    row: 3
+    row: 5
     column: 4
 
 # GUI Configuration for the Quests GUI
