@@ -3,7 +3,6 @@ package ru.oftendev.xbattlepass.rewards
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.RegistrableCategory
-import ru.oftendev.xbattlepass.battlepass.BattlePass
 
 object Rewards: RegistrableCategory<Reward>("reward", "rewards") {
     override fun acceptConfig(plugin: LibreforgePlugin, id: String, config: Config) {
@@ -16,7 +15,7 @@ object Rewards: RegistrableCategory<Reward>("reward", "rewards") {
         registry.clear()
     }
 
-    override fun afterReload(plugin: LibreforgePlugin) {
-        BattlePass.update()
-    }
+//    override fun afterReload(plugin: LibreforgePlugin) {
+//        BattlePassLegacy.update()
+//    }
 }

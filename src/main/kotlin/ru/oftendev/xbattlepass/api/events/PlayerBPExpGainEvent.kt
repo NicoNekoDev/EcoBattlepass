@@ -4,8 +4,10 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerEvent
+import ru.oftendev.xbattlepass.battlepass.BattlePass
 
 class PlayerBPExpGainEvent(player: Player,
+                           val battlepass: BattlePass,
                            private var _amount: Double,
                            val isMultiply: Boolean): PlayerEvent(player), Cancellable {
     private var cancelled = false

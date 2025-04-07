@@ -9,14 +9,12 @@ import com.willfp.eco.util.toNiceString
 import com.willfp.libreforge.counters.Accumulator
 import com.willfp.libreforge.counters.Counters
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.inventory.ItemStack
+import ru.oftendev.xbattlepass.api.*
 import ru.oftendev.xbattlepass.api.events.PlayerTaskExpGainEvent
-import ru.oftendev.xbattlepass.api.giveTaskExperience
-import ru.oftendev.xbattlepass.api.hasCompletedQuest
-import ru.oftendev.xbattlepass.api.hasCompletedTask
-import ru.oftendev.xbattlepass.api.taskProgress
 import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.quests.ActiveBattleQuest
 import ru.oftendev.xbattlepass.quests.BattleQuest
@@ -24,7 +22,7 @@ import ru.oftendev.xbattlepass.quests.BattleQuest
 class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
     val parent = BattleTasks.getByID(config.getString("id"))!!
 
-    val requiredXP = config.getDouble("xp")
+    val requiredXP = config.getDoubleFromExpression("xp")
 
     val xpGainMethods = parent.xpGainMethods.map { it.clone() }
 
@@ -44,7 +42,7 @@ class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
 
     fun isActive(player: Player): Boolean {
         return !player.hasCompletedTask(this) && !player.hasCompletedQuest(this.quest) && this.quest.category
-            .isActive && this.quest.parent.isAllowed(player)
+            .isActive && this.quest.parent.isAllowed(player, quest.category.battlepass)
     }
 
     private val accumulator = object : Accumulator {
@@ -64,6 +62,11 @@ class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
         if (!event.isCancelled) {
             player.giveTaskExperience(this, event.getAmount())
         }
+    }
+
+    fun reset(player: OfflinePlayer) {
+        player.setCompletedTask(this, false)
+        player.setTaskProgress(this, 0.0)
     }
 
     fun getDisplayItem(player: Player): ItemStack {

@@ -8,16 +8,19 @@ import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
 import org.bukkit.entity.Player
-import ru.oftendev.xbattlepass.categories.Categories
+import ru.oftendev.xbattlepass.battlepass.BattlePass
 import ru.oftendev.xbattlepass.categories.Category
 import ru.oftendev.xbattlepass.plugin
 
-class CategoriesGUI(private val player: Player, val page: Int = 1, val backButton: Boolean = false) {
+class CategoriesGUI(private val player: Player, val pass: BattlePass,
+                    val page: Int = 1, val backButton: Boolean = false) {
     fun open() {
         val pattern = plugin.configYml.getStrings("categories-gui.mask.pattern")
         val menu = Menu.builder(pattern.size)
             .setTitle(plugin.configYml.getFormattedString("categories-gui.title")
-                .replace("%page%", page.toString()))
+                .replace("%page%", page.toString())
+                .replace("%pass%", pass.name)
+            )
         var row = 1
         var num = ((page-1)*getPerPage())
         pattern.forEach {
@@ -25,8 +28,8 @@ class CategoriesGUI(private val player: Player, val page: Int = 1, val backButto
             it.toCharArray().forEach {
                     s -> kotlin.run {
                 if (s.equals('c', true)) {
-                    if (num < Categories.values().size) {
-                        menu.setSlot(row, col, slot(Categories.valuesSorted().toList()[num]))
+                    if (num < pass.categories.size) {
+                        menu.setSlot(row, col, slot(pass.categories.toList()[num]))
                     }
                     num++
                 }
@@ -69,7 +72,7 @@ class CategoriesGUI(private val player: Player, val page: Int = 1, val backButto
     }
 
     private fun getMaxPages(): Int {
-        val total = Categories.values().size
+        val total = pass.categories.size
         return total/getPerPage()
     }
 
@@ -85,7 +88,7 @@ class CategoriesGUI(private val player: Player, val page: Int = 1, val backButto
         if (nextActive) {
             builder.onLeftClick { _, _ ->
                 run {
-                    CategoriesGUI(player, page + 1, backButton).open()
+                    CategoriesGUI(player, pass, page + 1, backButton).open()
                 }
             }
         }
@@ -105,9 +108,9 @@ class CategoriesGUI(private val player: Player, val page: Int = 1, val backButto
             builder.onLeftClick { _, _ ->
                 run {
                     if (page > 1) {
-                        CategoriesGUI(player, page - 1, backButton).open()
+                        CategoriesGUI(player, pass, page - 1, backButton).open()
                     } else if (backButton) {
-                        BattlePassGUI.createAndOpen(player)
+                        BattlePassGUI.createAndOpen(player, pass)
                     }
                 }
             }

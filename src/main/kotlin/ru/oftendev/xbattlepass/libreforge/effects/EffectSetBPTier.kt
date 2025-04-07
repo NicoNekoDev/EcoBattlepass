@@ -8,14 +8,21 @@ import com.willfp.libreforge.effects.Effect
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.Bukkit
-import ru.oftendev.xbattlepass.api.bpTier
 import ru.oftendev.xbattlepass.api.events.PlayerTierLevelUpEvent
+import ru.oftendev.xbattlepass.api.getTier
 import ru.oftendev.xbattlepass.api.giveBPExperience
 import ru.oftendev.xbattlepass.api.giveExactBPExperience
+import ru.oftendev.xbattlepass.api.setTier
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 
 object EffectSetBPTier: Effect<NoCompileData>("set_battlepass_tier") {
     override val arguments: ConfigArguments = arguments {
         require("tier", "You must specify the tier to set!")
+        require("battlepass",
+            "You must specify a battlepass to check premium in!",
+            {passId -> BattlePasses.getByID(passId)},
+            {battlepass -> battlepass != null}
+        )
     }
 
     override val parameters: Set<TriggerParameter> = setOf(TriggerParameter.PLAYER)
@@ -23,13 +30,14 @@ object EffectSetBPTier: Effect<NoCompileData>("set_battlepass_tier") {
     override fun onTrigger(config: Config, data: TriggerData, compileData: NoCompileData): Boolean {
         val player = data.player ?: return false
         val amount = config.getIntFromExpression("amount", player)
+        val pass = BattlePasses.getByID(config.getString("battlepass")) ?: return false
 
-        val event = PlayerTierLevelUpEvent(player, amount)
+        val event = PlayerTierLevelUpEvent(player, pass, amount)
 
         Bukkit.getPluginManager().callEvent(event)
 
         if (!event.isCancelled) {
-            player.bpTier = amount
+            player.setTier(pass, amount)
             return true
         }
 

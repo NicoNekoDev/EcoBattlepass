@@ -3,8 +3,8 @@ package ru.oftendev.xbattlepass.quests
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.registry.Registrable
-import ru.oftendev.xbattlepass.battlepass.TierType
-import ru.oftendev.xbattlepass.battlepass.Tiered
+import ru.oftendev.xbattlepass.tiers.TierType
+import ru.oftendev.xbattlepass.tiers.Tiered
 import ru.oftendev.xbattlepass.tasks.ActiveBattleTask
 
 class BattleQuest(private val _id: String, val config: Config): Registrable, Tiered {

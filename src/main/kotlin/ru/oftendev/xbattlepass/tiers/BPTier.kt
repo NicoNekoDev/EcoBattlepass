@@ -1,19 +1,20 @@
-package ru.oftendev.xbattlepass.battlepass
+package ru.oftendev.xbattlepass.tiers
 
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.util.formatEco
 import com.willfp.eco.util.toNiceString
 import com.willfp.eco.util.toNumeral
-import org.bukkit.entity.Bat
 import org.bukkit.entity.Player
-import ru.oftendev.xbattlepass.api.bpPassExp
-import ru.oftendev.xbattlepass.api.bpTier
+import ru.oftendev.xbattlepass.api.getPassExp
+import ru.oftendev.xbattlepass.battlepass.BattlePass
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.rewards.Rewards
 
-class BPTier(val config: Config) {
-    constructor(num: Int) : this(
-        Config.builder().add("tier", num)
+class BPTier(val config: Config, val battlepass: BattlePass) {
+    constructor(num: Int, battlepass: BattlePass) : this(
+        Config.builder().add("tier", num),
+        battlepass
     )
 
     val number = config.getInt("tier")
@@ -23,7 +24,7 @@ class BPTier(val config: Config) {
 
     fun getRewardsFormatted(tierType: TierType, player: Player): List<String> {
         val result = mutableListOf<String>()
-        val format = BattlePass.getRewardsFormat(tierType)
+        val format = BattlePasses.getRewardsFormat(tierType)
         for (reward in rewards) {
             if (reward.tier != tierType) continue
             result.add(
@@ -39,9 +40,9 @@ class BPTier(val config: Config) {
     }
 
     fun format(string: String, player: Player): String {
-        return string.replace("%percentage_progress%", BattlePass.getFormattedProgress(player))
-            .replace("%current_xp%", player.bpPassExp.toNiceString())
-            .replace("%required_xp%", BattlePass.getFormattedRequired(player))
+        return string.replace("%percentage_progress%", battlepass.getFormattedProgress(player))
+            .replace("%current_xp%", player.getPassExp(battlepass).toNiceString())
+            .replace("%required_xp%", battlepass.getFormattedRequired(player))
             .replace("%tier%", this.number.toNiceString())
             .replace("%tier_numeral%", this.number.toNumeral())
     }
@@ -73,9 +74,9 @@ class BPTier(val config: Config) {
                 }
             } else {
                 result.add(
-                    string.replace("%percentage_progress%", BattlePass.getFormattedProgress(player))
-                        .replace("%current_xp%", player.bpPassExp.toNiceString())
-                        .replace("%required_xp%", BattlePass.getFormattedRequired(player))
+                    string.replace("%percentage_progress%", battlepass.getFormattedProgress(player))
+                        .replace("%current_xp%", player.getPassExp(battlepass).toNiceString())
+                        .replace("%required_xp%", battlepass.getFormattedRequired(player))
                         .replace("%tier%", this.number.toNiceString())
                         .replace("%tier_numeral%", this.number.toNumeral())
                 )
@@ -87,7 +88,9 @@ class BPTier(val config: Config) {
 }
 
 class BPReward(val config: Config): Tiered {
-    val reward = Rewards.getByID(config.getString("id"))!!
+    val reward
+        get() = Rewards.getByID(config.getString("id"))
+            ?: throw IllegalArgumentException("Could not find reward with id ${config.getString("id")}")
     override val tier = TierType.entries.first {
         it.name.equals(config.getString("tier"), true)
     }

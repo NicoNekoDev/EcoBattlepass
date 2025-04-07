@@ -1,5 +1,6 @@
 categories:
   - id: daily # The category ID, must be unique
+    battlepass: battlepass
     name: "&8»&e Daily Challenges" # The name of the category
     item: nether_star 1 # The item to display in the GUI
     lore: # The lore of the category
@@ -17,6 +18,7 @@ categories:
       - id: free_daily_quest_7 # The ID of the quest
 
   - id: weekly_1 # The category ID, must be unique
+    battlepass: battlepass
     name: "&8»&e Week 1 Challenges" # The name of the category
     item: emerald_block 1 # The item to display in the GUI
     lore: # The lore of the category
@@ -34,6 +36,7 @@ categories:
       - id: week_1_7 # The ID of the quest
 
   - id: weekly_2 # The category ID, must be unique
+    battlepass: battlepass
     name: "&8»&e Week 2 Challenges" # The name of the category
     item: emerald_block 2 # The item to display in the GUI
     lore: # The lore of the category
@@ -51,6 +54,7 @@ categories:
       - id: week_2_7 # The ID of the quest
 
   - id: weekly_3 # The category ID, must be unique
+    battlepass: battlepass
     name: "&8»&e Week 3 Challenges" # The name of the category
     item: emerald_block 3 # The item to display in the GUI
     lore: # The lore of the category
@@ -68,6 +72,7 @@ categories:
       - id: week_3_7 # The ID of the quest
 
   - id: weekly_4 # The category ID, must be unique
+    battlepass: battlepass
     name: "&8»&e Week 4 Challenges" # The name of the category
     item: emerald_block 4 # The item to display in the GUI
     lore: # The lore of the category

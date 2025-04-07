@@ -4,7 +4,6 @@ import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.config.BaseConfig
 import com.willfp.eco.core.config.ConfigType
 import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.placeholder.PlayerPlaceholder
 import com.willfp.eco.util.toNiceString
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
@@ -13,13 +12,10 @@ import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.triggers.Triggers
 import net.kyori.adventure.key.Key
-import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
-import ru.oftendev.xbattlepass.api.bpPassExp
-import ru.oftendev.xbattlepass.api.bpTier
-import ru.oftendev.xbattlepass.api.updatePremiumPermission
-import ru.oftendev.xbattlepass.battlepass.BattlePass
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
+import ru.oftendev.xbattlepass.battlepass.BattlePasses.updateTaskBindings
 import ru.oftendev.xbattlepass.categories.Categories
 import ru.oftendev.xbattlepass.commands.XBattlePassCommand
 import ru.oftendev.xbattlepass.libreforge.conditions.ConditionHasBPPremium
@@ -40,11 +36,8 @@ lateinit var plugin: XBattlePass
     private set
 
 class XBattlePass: LibreforgePlugin() {
-    val battlePassYml = BattlePassYml(this)
-
     init {
         plugin = this
-        this.configHandler.addConfig(battlePassYml)
         this.configHandler.addConfig(
             object: BaseConfig(
                 "categories",
@@ -72,13 +65,13 @@ class XBattlePass: LibreforgePlugin() {
             Rewards,
             BattleTasks,
             BattleQuests,
+            BattlePasses,
             Categories
         )
     }
 
     override fun handleEnable() {
-        updatePremiumPermission()
-        BattlePass.updateTaskBindings()
+        BattlePasses.updateTaskBindings()
 
         // Libreforge register
         Effects.register(EffectBPExpMultiplier)
@@ -98,46 +91,18 @@ class XBattlePass: LibreforgePlugin() {
         Triggers.register(TriggerBPRewardClaim)
         Triggers.register(TriggerBPTaskComplete)
         Triggers.register(TriggerBPTierUp)
-
-        // Placeholders
-
-//        %battlepass_tier%
-//        %battlepass_xp_required
-//        %battlepass_xp%
-
-        PlayerPlaceholder(
-            this,
-            "tier"
-        ) {
-            player -> player.bpTier.toNiceString()
-        }.register()
-
-        PlayerPlaceholder(
-            this,
-            "xp_required"
-        ) {
-                player -> BattlePass.getFormattedRequired(player)
-        }.register()
-
-        PlayerPlaceholder(
-            this,
-            "xp"
-        ) {
-                player -> player.bpPassExp.toNiceString()
-        }.register()
-
-        PlayerPlaceholder(
-            this,
-            "claimable"
-        ) {
-                player -> BattlePass.getClaimable(player).toNiceString()
-        }.register()
     }
 
     override fun handleReload() {
-        updatePremiumPermission()
-        BattlePass.update()
-        BattlePass.updateTaskBindings()
+        // BattlePassLegacy.update()
+        BattlePasses.updateTaskBindings()
+    }
+
+    override fun createTasks() {
+        this.scheduler.runAsyncTimer(1L, 100L) {
+            Categories.values().forEach { category -> if (category.isToReset()) category.reset() }
+            BattlePasses.tickUpdates()
+        }
     }
 }
 
@@ -178,13 +143,6 @@ fun msToString(ms: Long): String {
     // Format the result as a string
     return lst.joinToString(plugin.configYml.getFormattedString("time-format.split"))
 }
-
-class BattlePassYml(plugin: LibreforgePlugin): BaseConfig(
-    "battlepass",
-    plugin,
-    true,
-    ConfigType.YAML
-)
 
 class ConfiguredSound(private val sound: net.kyori.adventure.sound.Sound, private val enabled: Boolean = true) {
     constructor(from: Config) : this(

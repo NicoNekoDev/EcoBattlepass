@@ -9,10 +9,16 @@ import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import ru.oftendev.xbattlepass.api.giveBPExperience
 import ru.oftendev.xbattlepass.api.giveExactBPExperience
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 
 object EffectGiveBPExp: Effect<NoCompileData>("give_battlepass_xp") {
     override val arguments: ConfigArguments = arguments {
         require("amount", "You must specify the exp amount!")
+        require("battlepass",
+            "You must specify a battlepass to check premium in!",
+            {passId -> BattlePasses.getByID(passId)},
+            {battlepass -> battlepass != null}
+        )
     }
 
     override val parameters: Set<TriggerParameter> = setOf(TriggerParameter.PLAYER)
@@ -21,11 +27,12 @@ object EffectGiveBPExp: Effect<NoCompileData>("give_battlepass_xp") {
         val player = data.player ?: return false
         val amount = config.getDoubleFromExpression("amount", player)
         val exact = config.getBool("exact")
+        val pass = BattlePasses.getByID(config.getString("battlepass")) ?: return false
 
         if (exact) {
-            player.giveExactBPExperience(amount)
+            player.giveExactBPExperience(pass, amount)
         } else {
-            player.giveBPExperience(amount)
+            player.giveBPExperience(pass, amount)
         }
 
         return true

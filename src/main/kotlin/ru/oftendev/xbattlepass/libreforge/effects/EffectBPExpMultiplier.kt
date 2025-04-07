@@ -5,14 +5,26 @@ import com.willfp.libreforge.effects.templates.MultiplierEffect
 import com.willfp.libreforge.toDispatcher
 import org.bukkit.event.EventHandler
 import ru.oftendev.xbattlepass.api.events.PlayerBPExpGainEvent
+import ru.oftendev.xbattlepass.battlepass.BattlePass
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 
-object EffectBPExpMultiplier : MultiplierEffect("battlepass_xp_multiplier") {
+object EffectBPExpMultiplier : MultiMultiplierEffect<BattlePass>("battlepass_xp_multiplier") {
     @EventHandler(ignoreCancelled = true)
     fun handle(event: PlayerBPExpGainEvent) {
         val player = event.player
 
         if (event.isMultiply) {
-            event.setAmount(event.getAmount() * getMultiplier(player.toDispatcher()))
+            event.setAmount(event.getAmount() * getMultiplier(player.toDispatcher(), event.battlepass))
         }
+    }
+
+    override val key: String = "battlepasses"
+
+    override fun getAllElements(): Collection<BattlePass> {
+        return BattlePasses.values()
+    }
+
+    override fun getElement(key: String): BattlePass? {
+        return BattlePasses.getByID(key)
     }
 }

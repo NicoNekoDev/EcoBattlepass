@@ -9,4 +9,4 @@ softdepend:
   - libreforge
 commands:
   xbattlepass:
-    aliases: [battlepass, bp]
+    aliases: [xbp]

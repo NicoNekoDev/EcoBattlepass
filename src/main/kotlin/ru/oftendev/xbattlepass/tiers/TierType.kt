@@ -1,4 +1,4 @@
-package ru.oftendev.xbattlepass.battlepass
+package ru.oftendev.xbattlepass.tiers
 
 enum class TierType {
     FREE,

@@ -53,7 +53,7 @@ allprojects {
         shadowJar {
             exclude("kotlin/**")
             exclude("kotlinx/**")
-            relocate("com.willfp.ecomponent", "com.willfp.ecoskills.ecomponent")
+            relocate("com.willfp.ecomponent", "ru.oftendev.xbattlepass.ecomponent")
         }
         compileJava {
             options.isDeprecation = true

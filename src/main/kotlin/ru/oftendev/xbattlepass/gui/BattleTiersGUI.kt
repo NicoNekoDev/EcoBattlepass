@@ -20,7 +20,7 @@ import com.willfp.eco.util.openMenu
 import com.willfp.ecomponent.components.LevelState
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import ru.oftendev.xbattlepass.api.bpTier
+import ru.oftendev.xbattlepass.api.getTier
 import ru.oftendev.xbattlepass.api.hasReceivedTier
 import ru.oftendev.xbattlepass.api.receiveTier
 import ru.oftendev.xbattlepass.battlepass.BattlePass
@@ -30,14 +30,16 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 object BattleTiersGUI {
-    fun createAndOpen(player: Player, backButton: Boolean = false) {
+    fun createAndOpen(player: Player, pass: BattlePass, backButton: Boolean = false) {
         val maskPattern = plugin.configYml.getStrings("tiers-gui.mask.pattern").toTypedArray()
         val maskItems = MaskItems.fromItemNames(plugin.configYml.getStrings("tiers-gui.mask.materials"))
 
-        val levelComponent = BattleTierComponent(plugin)
+        val levelComponent = BattleTierComponent(plugin, pass)
 
         val menu = menu(maskPattern.size) {
-            title = plugin.configYml.getString("tiers-gui.title").formatEco()
+            title = plugin.configYml.getString("tiers-gui.title")
+                .replace("%pass%", pass.name)
+                .formatEco()
 
             maxPages(levelComponent.pages)
 
@@ -51,7 +53,7 @@ object BattleTiersGUI {
             addComponent(1, 1, levelComponent)
 
             defaultPage {
-                levelComponent.getPageOf(it.bpTier).coerceAtLeast(1)
+                levelComponent.getPageOf(it.getTier(pass)).coerceAtLeast(1)
             }
 
             // Instead of the page changer, this will show up when on the first page
@@ -65,7 +67,7 @@ object BattleTiersGUI {
                             .setDisplayName(plugin.configYml.getString("tiers-gui.buttons.prev-page.name"))
                             .build()
                     ) {
-                        onLeftClick { _, _ -> BattlePassGUI.createAndOpen(player) }
+                        onLeftClick { _, _ -> BattlePassGUI.createAndOpen(player, pass) }
                     }
                 )
             }
@@ -124,22 +126,25 @@ private val levelItemCache = Caffeine.newBuilder()
     .build<Int, ItemStack>()
 
 class BattleTierComponent(
-    private val plugin: EcoPlugin
+    private val plugin: EcoPlugin,
+    private val pass: BattlePass
 ) : ProperLevelComponent() {
     override val pattern: List<String> = plugin.configYml.getStrings("tiers-gui.mask.progression-pattern")
-    override val maxLevel = BattlePass.tiers.maxOf { it.number }
+    override val maxLevel = pass.maxLevel
 
     private val itemCache = nestedMap<LevelState, Int, ItemStack>()
 
     override fun getLevelItem(player: Player, menu: Menu, level: Int, levelState: LevelState): ItemStack {
         val key = run {
-            if (levelState == LevelState.UNLOCKED && player.hasReceivedTier(level)) {
+            if (levelState == LevelState.UNLOCKED && player.hasReceivedTier(pass, level)) {
                 "claimed"
             } else levelState.key
         }
 
+        // plugin.logger.info("Level $level, $key")
+
         fun item() = levelItemCache.get(player.hashCode() xor level.hashCode()) {
-            val tier = BattlePass.getTier(level)!!
+            val tier = pass.getTier(level)!!
             
             ItemStackBuilder(Items.lookup(plugin.configYml.getString("tiers-gui.buttons.$key.item")))
                 .setDisplayName(
@@ -168,27 +173,29 @@ class BattleTierComponent(
             itemCache[levelState].getOrPut(level) { item() }
         } else {
             item()
+        }.apply {
+            // "Slot $level item $this"
         }
     }
 
     override fun getLevelState(player: Player, level: Int): LevelState {
         return when {
-            level <= player.bpTier -> LevelState.UNLOCKED
-            level == player.bpTier + 1 -> LevelState.IN_PROGRESS
+            level <= player.getTier(pass) -> LevelState.UNLOCKED
+            level == player.getTier(pass) + 1 -> LevelState.IN_PROGRESS
             else -> LevelState.LOCKED
         }
     }
 
     override fun getLeftClickAction(player: Player, level: Int, levelState: LevelState): () -> Unit {
         val key = run {
-            if (levelState == LevelState.UNLOCKED && player.hasReceivedTier(level)) {
+            if (levelState == LevelState.UNLOCKED && player.hasReceivedTier(pass, level)) {
                 "claimed"
             } else levelState.key
         }
 
         return if (key == "unlocked") {
             {
-                val tier = BattlePass.getTier(level)
+                val tier = pass.getTier(level)
                 if (tier != null) {
                     levelItemCache.invalidate(level)
                     itemCache[levelState]?.remove(level)

@@ -21,6 +21,7 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
             .setTitle(plugin.configYml.getFormattedString("quests-gui.title")
                 .replace("%page%", page.toString())
                 .replace("%category%", ChatColor.stripColor(category.name) ?: category.id)
+                .replace("%pass%", category.battlepass.name)
             )
         var row = 1
         var num = ((page-1)*getPerPage())
@@ -109,7 +110,7 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
                 if (page > 1) {
                     QuestsGUI(player, category, page - 1, wasBack = wasBack).open()
                 } else {
-                    CategoriesGUI(player, backButton = wasBack).open()
+                    CategoriesGUI(player, category.battlepass, backButton = wasBack).open()
                 }
             }
         }

@@ -22,7 +22,8 @@ object TriggerBPExpGain: Trigger("gain_battlepass_xp") {
                 dispatcher = event.player.toDispatcher(),
                 player = event.player,
                 event = event,
-                value = event.getAmount()
+                value = event.getAmount(),
+                text = event.battlepass.id
             )
         )
     }

@@ -8,9 +8,12 @@ import com.willfp.eco.core.placeholder.PlayerlessPlaceholder
 import com.willfp.eco.core.registry.Registrable
 import com.willfp.eco.util.formatEco
 import com.willfp.eco.util.toNiceString
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import ru.oftendev.xbattlepass.api.hasCompletedQuest
+import ru.oftendev.xbattlepass.battlepass.BattlePass
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.quests.ActiveBattleQuest
 import java.time.LocalDateTime
@@ -47,6 +50,9 @@ class Category(private val _id: String, val config: Config): Registrable {
         return _id
     }
 
+    val battlepass: BattlePass
+        get() = BattlePasses.getByID(config.getString("battlepass"))!!
+
     val name = config.getString("name")
 
     val item = Items.lookup(config.getString("item"))
@@ -77,7 +83,9 @@ class Category(private val _id: String, val config: Config): Registrable {
         return this.quests.count { player.hasCompletedQuest(it) }
     }
 
-    fun getNextResetDate(): LocalDateTime {
+    fun getNextResetDate(): LocalDateTime? {
+        if (resetTimer <= 0) return null
+
         var current = startDate
 
         while(true) {
@@ -104,7 +112,7 @@ class Category(private val _id: String, val config: Config): Registrable {
     fun getDisplayableMs(): Long {
         return if (this.isActive) {
             if (resetTimer > 0) {
-                val nextDate = min(getNextResetDate().toInstant(OffsetDateTime.now().offset).toEpochMilli(),
+                val nextDate = min(getNextResetDate()!!.toInstant(OffsetDateTime.now().offset).toEpochMilli(),
                     endDate?.toInstant(OffsetDateTime.now().offset)?.toEpochMilli() ?: Long.MAX_VALUE)
                 nextDate - System.currentTimeMillis()
             } else {
@@ -119,7 +127,8 @@ class Category(private val _id: String, val config: Config): Registrable {
 
     fun getDisplayableStatusKey(): String {
         return if (this.isActive) {
-            if (getNextResetDate() < (endDate ?: LocalDateTime.now())) {
+            val resetDate = getNextResetDate()
+            if (resetDate != null && resetDate < (endDate ?: LocalDateTime.now())) {
                 "reset"
             } else if (endDate != null) {
                 "end"
@@ -132,13 +141,22 @@ class Category(private val _id: String, val config: Config): Registrable {
             return false
         }
 
-        val nextReset = getNextResetDate()
+        val nextReset = getNextResetDate()!!
 
         return nextReset.isBefore(LocalDateTime.now()) || nextReset == LocalDateTime.now()
     }
 
+    fun reset() {
+        for (player in Bukkit.getOfflinePlayers()) {
+            for (quest in this.quests) {
+                quest.reset(player)
+            }
+        }
+    }
+
     val isActive: Boolean
-        get() = LocalDateTime.now().isAfter(startDate) && (endDate == null || LocalDateTime.now().isBefore(endDate))
+        get() = this.battlepass.isActive && LocalDateTime.now().isAfter(startDate)
+                && (endDate == null || LocalDateTime.now().isBefore(endDate))
 
     var consideredActive: Boolean = isActive
 }

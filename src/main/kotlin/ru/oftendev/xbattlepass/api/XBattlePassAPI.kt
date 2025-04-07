@@ -1,75 +1,60 @@
 package ru.oftendev.xbattlepass.api
 
-import com.willfp.eco.core.data.keys.PersistentDataKey
-import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.data.profile
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import ru.oftendev.xbattlepass.api.events.PlayerBPExpGainEvent
 import ru.oftendev.xbattlepass.api.events.PlayerQuestCompleteEvent
 import ru.oftendev.xbattlepass.api.events.PlayerTaskCompleteEvent
 import ru.oftendev.xbattlepass.api.events.PlayerTierLevelUpEvent
-import ru.oftendev.xbattlepass.battlepass.BPTier
 import ru.oftendev.xbattlepass.battlepass.BattlePass
-import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.quests.ActiveBattleQuest
 import ru.oftendev.xbattlepass.tasks.ActiveBattleTask
+import ru.oftendev.xbattlepass.tiers.BPTier
 import kotlin.math.abs
 
-var premiumPermission = plugin.battlePassYml.getString("battlepass.premium-permission")
-
-val tierKey = PersistentDataKey(
-    plugin.createNamespacedKey("bp_tier"),
-    PersistentDataKeyType.INT, 0
-)
-
-val passExpKey = PersistentDataKey(
-    plugin.createNamespacedKey("bp_pass_exp"),
-    PersistentDataKeyType.DOUBLE, 0.0
-)
-
-fun updatePremiumPermission() {
-    premiumPermission = plugin.battlePassYml.getString("battlepass.premium-permission")
+fun OfflinePlayer.getTier(pass: BattlePass): Int {
+    return this.profile.read(pass.tierKey)
 }
 
-val bpTierKey = PersistentDataKey(
-    plugin.createNamespacedKey("bp_tier"),
-    PersistentDataKeyType.INT, 0
-)
+fun OfflinePlayer.setTier(pass: BattlePass, tier: Int) {
+    this.profile.write(pass.tierKey, tier)
+}
 
-val receivedTiersKey = PersistentDataKey(
-    plugin.createNamespacedKey("bp_tiers_received"),
-    PersistentDataKeyType.STRING_LIST, emptyList()
-)
+fun OfflinePlayer.getPassExp(pass: BattlePass): Double {
+    return this.profile.read(pass.passExpKey)
+}
 
-var Player.bpTier: Int
-    get() = this.profile.read(bpTierKey)
-    set(value) = this.profile.write(bpTierKey, value)
+fun OfflinePlayer.setPassExp(pass: BattlePass, passExp: Double) {
+    this.profile.write(pass.passExpKey, passExp)
+}
 
-var Player.bpPassExp: Double
-    get() = this.profile.read(passExpKey)
-    set(value) = this.profile.write(passExpKey, value)
+fun OfflinePlayer.getReceivedTiers(pass: BattlePass): List<String> {
+    return this.profile.read(pass.receivedTiersKey)
+}
 
-var Player.receivedTiers: List<String>
-    get() = this.profile.read(receivedTiersKey)
-    set(value) = this.profile.write(receivedTiersKey, value.distinct())
+fun OfflinePlayer.setReceivedTiers(pass: BattlePass, tiers: List<String>) {
+    this.profile.write(pass.receivedTiersKey, tiers.distinct())
+}
 
-val Player.hasPremium: Boolean
-    get() = this.hasPermission(premiumPermission)
+fun Player.hasPremium(pass: BattlePass): Boolean {
+    return this.hasPermission(pass.premiumPerm)
+}
 
 fun Player.receiveTier(tier: BPTier) {
-    tier.rewards.filter { it.isAllowed(this) }.forEach {
+    tier.rewards.filter { it.isAllowed(this, tier.battlepass) }.forEach {
         it.reward.grant(this)
     }
 
-    this.receivedTiers += tier.saveId
+    this.setReceivedTiers(tier.battlepass, this.getReceivedTiers(tier.battlepass) + tier.saveId)
 }
 
-fun Player.hasCompletedTask(task: ActiveBattleTask): Boolean {
+fun OfflinePlayer.hasCompletedTask(task: ActiveBattleTask): Boolean {
     return this.profile.read(task.completedKey)
 }
 
-fun Player.hasCompletedQuest(quest: ActiveBattleQuest): Boolean {
+fun OfflinePlayer.hasCompletedQuest(quest: ActiveBattleQuest): Boolean {
     if (this.profile.read(quest.completedKey)) {
         return true
     } else {
@@ -81,7 +66,19 @@ fun Player.hasCompletedQuest(quest: ActiveBattleQuest): Boolean {
     return false
 }
 
-fun Player.taskProgress(task: ActiveBattleTask): Double {
+fun OfflinePlayer.setCompletedQuest(quest: ActiveBattleQuest, value: Boolean) {
+    this.profile.write(quest.completedKey, value)
+}
+
+fun OfflinePlayer.setCompletedTask(task: ActiveBattleTask, value: Boolean) {
+    this.profile.write(task.completedKey, value)
+}
+
+fun OfflinePlayer.setTaskProgress(task: ActiveBattleTask, progress: Double) {
+    this.profile.write(task.progressKey, progress)
+}
+
+fun OfflinePlayer.taskProgress(task: ActiveBattleTask): Double {
     return this.profile.read(task.progressKey)
 }
 
@@ -106,42 +103,42 @@ fun Player.checkCompletedQuest(task: ActiveBattleTask) {
     }
 }
 
-fun Player.giveBPExperience(experience: Double, withMultipliers: Boolean = true) {
+fun Player.giveBPExperience(pass: BattlePass, experience: Double, withMultipliers: Boolean = true) {
     val exp = abs(
         if (withMultipliers) experience * this.bpExperienceMultiplier
         else experience
     )
 
-    val gainEvent = PlayerBPExpGainEvent(this, exp, !withMultipliers)
+    val gainEvent = PlayerBPExpGainEvent(this, pass, exp, !withMultipliers)
     Bukkit.getPluginManager().callEvent(gainEvent)
 
     if (gainEvent.isCancelled) {
         return
     }
 
-    this.giveExactBPExperience(gainEvent.getAmount())
+    this.giveExactBPExperience(pass, gainEvent.getAmount())
 }
 
-fun Player.giveExactBPExperience(experience: Double) {
-    val level = this.bpTier
+fun Player.giveExactBPExperience(pass: BattlePass, experience: Double) {
+    val level = this.getTier(pass)
 
-    val progress = this.bpPassExp + experience
+    val progress = this.getPassExp(pass) + experience
 
-    if (progress >= BattlePass.getExpForLevel(level + 1)) {
-        val overshoot = progress - BattlePass.getExpForLevel(level + 1)
-        this.bpPassExp = 0.0
-        this.bpTier += 1
-        val levelUpEvent = PlayerTierLevelUpEvent(this, level + 1)
+    if (progress >= pass.getExpForLevel(level + 1)) {
+        val overshoot = progress - pass.getExpForLevel(level + 1)
+        this.setPassExp(pass, 0.0)
+        this.setTier(pass, level + 1)
+        val levelUpEvent = PlayerTierLevelUpEvent(this, pass, level + 1)
         Bukkit.getPluginManager().callEvent(levelUpEvent)
         if (!levelUpEvent.isCancelled) {
-            this.giveExactBPExperience(overshoot)
+            this.giveExactBPExperience(pass, overshoot)
         }
     } else {
-        this.bpPassExp = progress
+        this.setPassExp(pass, progress)
     }
 }
 
-fun Player.hasReceivedTier(tier: Int) : Boolean {
-    val bpTier = BattlePass.getTier(tier) ?: return false
-    return bpTier.saveId in this.receivedTiers
+fun OfflinePlayer.hasReceivedTier(pass: BattlePass, tier: Int) : Boolean {
+    val bpTier = pass.getTier(tier) ?: return false
+    return bpTier.saveId in this.getReceivedTiers(pass)
 }

@@ -4,20 +4,18 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import ru.oftendev.xbattlepass.ConfiguredSound
-import ru.oftendev.xbattlepass.api.bpTier
 import ru.oftendev.xbattlepass.api.events.PlayerBPExpGainEvent
 import ru.oftendev.xbattlepass.api.events.PlayerQuestCompleteEvent
 import ru.oftendev.xbattlepass.api.events.PlayerRewardEvent
 import ru.oftendev.xbattlepass.api.events.PlayerTierLevelUpEvent
+import ru.oftendev.xbattlepass.api.getTier
 import ru.oftendev.xbattlepass.api.giveBPExperience
-import ru.oftendev.xbattlepass.api.receiveTier
-import ru.oftendev.xbattlepass.battlepass.BattlePass
 import ru.oftendev.xbattlepass.plugin
 
 object BattlePassListener: Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     fun handleBPLevelUp(event: PlayerTierLevelUpEvent) {
-        if (event.player.bpTier >= BattlePass.maxLevel) {
+        if (event.player.getTier(event.battlepass) >= event.battlepass.maxLevel) {
             event.isCancelled = true
             return
         }
@@ -39,7 +37,7 @@ object BattlePassListener: Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun handleBPExp(event: PlayerBPExpGainEvent) {
-        if (event.player.bpTier >= BattlePass.maxLevel) {
+        if (event.player.getTier(event.battlepass) >= event.battlepass.maxLevel) {
             event.isCancelled = true
         }
     }
@@ -57,6 +55,7 @@ object BattlePassListener: Listener {
         ).play(event.player)
 
         event.player.giveBPExperience(
+            event.quest.category.battlepass,
             event.quest.parent.tierPoints.toDouble(),
             true
         )

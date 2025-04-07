@@ -1,107 +1,131 @@
 package ru.oftendev.xbattlepass.battlepass
 
 import com.willfp.eco.core.Eco
-import com.willfp.eco.core.data.PlayerProfile
+import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.data.Profile
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.data.profile
+import com.willfp.eco.core.placeholder.PlayerPlaceholder
+import com.willfp.eco.core.registry.Registrable
 import com.willfp.eco.util.evaluateExpression
 import com.willfp.eco.util.toNiceString
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import ru.oftendev.xbattlepass.api.bpPassExp
-import ru.oftendev.xbattlepass.api.bpTier
+import ru.oftendev.xbattlepass.api.getPassExp
+import ru.oftendev.xbattlepass.api.getTier
 import ru.oftendev.xbattlepass.api.hasReceivedTier
 import ru.oftendev.xbattlepass.categories.Categories
+import ru.oftendev.xbattlepass.categories.Category
+import ru.oftendev.xbattlepass.commands.dynamic.DynamicPassCommand
 import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.quests.ActiveBattleQuest
-import ru.oftendev.xbattlepass.tasks.ActiveBattleTask
+import ru.oftendev.xbattlepass.tiers.BPTier
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-object BattlePass {
-    val tiers = mutableListOf<BPTier>()
+class BattlePass(private val _id: String, val config: Config): Registrable {
+    init {
+        // Placeholders
 
-    val maxLevel: Int
-        get() = plugin.battlePassYml.getInt("battlepass.max-tier")
+        // %battlepass_tier%
+        // %battlepass_xp_required
+        // %battlepass_xp%
 
-    val activeTasks: List<ActiveBattleTask>
-        get() = Categories.values().filter { it.isActive }
-            .map { category -> category.quests.map { it.tasks }.flatten() }.flatten()
+        PlayerPlaceholder(
+            plugin,
+            "tier_$_id"
+        ) {
+                player -> player.getTier(this).toNiceString()
+        }.register()
 
-    private lateinit var xpFormula: String
+        PlayerPlaceholder(
+            plugin,
+            "xp_required_$_id"
+        ) {
+                player -> getFormattedRequired(player)
+        }.register()
 
-    fun updateTaskBindings() {
-        Categories.values().forEach { category -> category.quests.forEach { quest -> quest.tasks.forEach {
-            it.unbind()
-        } } }
+        PlayerPlaceholder(
+            plugin,
+            "xp_$_id"
+        ) {
+                player -> player.getPassExp(this).toNiceString()
+        }.register()
 
-        activeTasks.forEach { task -> task.unbind() }
-
-        activeTasks.forEach { task -> task.bind() }
-
-        plugin.logger.info("Rebound ${activeTasks.size} tasks")
+        PlayerPlaceholder(
+            plugin,
+            "claimable_$_id"
+        ) {
+                player -> getClaimable(player).toNiceString()
+        }.register()
     }
 
-    fun getTier(level: Int): BPTier? {
-        val exact = tiers.firstOrNull {
-            it.number == level
-        }
+    val tierKey = PersistentDataKey(
+        plugin.createNamespacedKey("bp_tier_$_id"),
+        PersistentDataKeyType.INT, 0
+    )
 
-        return exact ?: tiers.firstOrNull { it.number >= level }
+    val passExpKey = PersistentDataKey(
+        plugin.createNamespacedKey("bp_pass_exp_$_id"),
+        PersistentDataKeyType.DOUBLE, 0.0
+    )
+
+    val receivedTiersKey = PersistentDataKey(
+        plugin.createNamespacedKey("bp_tiers_received_$_id"),
+        PersistentDataKeyType.STRING_LIST, emptyList()
+    )
+
+    override fun getID(): String {
+        return this._id
     }
 
-    fun getActiveQuest(id: String): ActiveBattleQuest? {
-        for (category in Categories.values()) {
-            category.quests.forEach { quest ->
-                if (quest.parent.id.equals(id, true)) return quest
-            }
-        }
+    val name = config.getFormattedString("name")
 
-        return null
+    val premiumPerm = config.getFormattedString("premium")
+
+    val openCommand = DynamicPassCommand(this, config.getString("battlepass.command")).apply {
+        this.register()
     }
 
-    fun update() {
-        tiers.clear()
-        tiers.addAll(
-            plugin.battlePassYml.getSubsections("tiers").map { BPTier(it) }
-        )
+    val isActive: Boolean
+        get() = LocalDateTime.now().isAfter(startDate) && LocalDateTime.now().isBefore(endDate)
 
-        val registeredTiers = tiers.map { it.number }
+    val startDate = run {
+        val dateTimeString = config.getString("battlepass.battlepass-start")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        LocalDateTime.parse(dateTimeString, formatter)
+    }
+
+    val endDate = run {
+        val dateTimeString = config.getString("battlepass.battlepass-end")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        LocalDateTime.parse(dateTimeString, formatter)
+    }
+
+    val tiers = config.getSubsections("tiers").map { BPTier(it, this) }.toMutableList().apply {
+        val registeredTiers = this.map { tier -> tier.number }
 
         for (i in (1..maxLevel).subtract(registeredTiers.toSet())) {
-            tiers.add(
-                BPTier(i)
+            this.add(
+                BPTier(i, this@BattlePass)
             )
         }
 
-        xpFormula = plugin.battlePassYml.getString("battlepass.xp-formula")
-
-        plugin.logger.info("Registered ${tiers.size} tiers (${tiers.filter { it.transient }.size} transient)")
+        plugin.logger.info("Registered ${this.size} tiers (${this.filter { it.transient }.size} transient)" +
+                " for pass ${this@BattlePass.name}")
     }
 
-    fun tickUpdates() {
-        for (category in Categories.values()) {
-            if (category.isActive && !category.consideredActive) {
-                updateTaskBindings()
-            } else if (!category.isActive && category.consideredActive) {
-                updateTaskBindings()
-            }
-        }
-    }
+    val xpFormula = config.getString("battlepass.xp-formula")
 
-    fun getRewardsFormat(tierType: TierType): String {
-        val key = when (tierType) {
-            TierType.PREMIUM -> "premium"
-            TierType.FREE -> "free"
-        }
+    val maxLevel: Int
+        get() = config.getInt("battlepass.max-tier")
 
-        return plugin.configYml.getFormattedString("tiers-gui.buttons.$key-rewards-format")
-    }
+    val categories: List<Category>
+        get() = Categories.values().filter { it.battlepass == this }
+            .sortedWith(compareBy<Category>{ it.config.getInt("priority") }.thenBy { it.id })
 
-    /**
-     * Get the XP required to reach the next level, if currently at [level].
-     */
     fun getExpForLevel(level: Int): Double {
         return if (level <= 0) {
             0.0
@@ -111,7 +135,7 @@ object BattlePass {
     }
 
     fun getProgress(player: Player): Double {
-        return player.bpPassExp / getExpForLevel(player.bpTier + 1)
+        return player.getPassExp(this) / getExpForLevel(player.getTier(this) + 1)
     }
 
     fun getFormattedProgress(player: Player): String {
@@ -119,7 +143,7 @@ object BattlePass {
     }
 
     fun getFormattedRequired(player: Player): String {
-        return getFormattedExpForLevel(player.bpTier + 1)
+        return getFormattedExpForLevel(player.getTier(this) + 1)
     }
 
     fun getFormattedExpForLevel(level: Int): String {
@@ -133,7 +157,7 @@ object BattlePass {
 
     fun getClaimable(player: Player): Int {
         return tiers.filter {
-            player.bpTier >= it.number && !player.hasReceivedTier(it.number)
+            player.getTier(this) >= it.number && !player.hasReceivedTier(this, it.number)
         }.size
     }
 
@@ -143,6 +167,7 @@ object BattlePass {
         }
     }
 
+    @Suppress("UnstableApiUsage")
     fun reset(player: OfflinePlayer) {
         val profile = player.profile
         val keys = Eco.get().registeredPersistentDataKeys.filter { it.key.namespace == "xbattlepass" }
@@ -150,6 +175,24 @@ object BattlePass {
             persistentDataKey.type
             writeToProfile(profile, persistentDataKey)
         }
+    }
+
+    fun getTier(level: Int): BPTier? {
+        val exact = tiers.firstOrNull {
+            it.number == level
+        }
+
+        return exact ?: tiers.firstOrNull { it.number >= level }
+    }
+
+    fun getActiveQuest(id: String): ActiveBattleQuest? {
+        for (category in categories) {
+            category.quests.forEach { quest ->
+                if (quest.parent.id.equals(id, true)) return quest
+            }
+        }
+
+        return null
     }
 
     private fun <T : Any> writeToProfile(profile: Profile, key: PersistentDataKey<T>) {

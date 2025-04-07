@@ -9,15 +9,18 @@ import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.util.formatEco
 import org.bukkit.entity.Player
+import ru.oftendev.xbattlepass.battlepass.BattlePass
 import ru.oftendev.xbattlepass.plugin
 
 object BattlePassGUI {
-    fun createAndOpen(player: Player) {
+    fun createAndOpen(player: Player, pass: BattlePass) {
         val maskPattern = plugin.configYml.getStrings("battlepass-gui.mask.pattern").toTypedArray()
         val maskItems = MaskItems.fromItemNames(plugin.configYml.getStrings("battlepass-gui.mask.materials"))
 
         val menu = menu(maskPattern.size) {
-            title = plugin.configYml.getString("battlepass-gui.title").formatEco()
+            title = plugin.configYml.getString("battlepass-gui.title")
+                .replace("%pass%", pass.name)
+                .formatEco()
 
             setMask(
                 FillerMask(
@@ -38,7 +41,7 @@ object BattlePassGUI {
                         .build()
                 ) {
                     onLeftClick { _, _ ->
-                        BattleTiersGUI.createAndOpen(player, true)
+                        BattleTiersGUI.createAndOpen(player, pass, true)
                     }
                 }
             )
@@ -55,7 +58,7 @@ object BattlePassGUI {
                         .build()
                 ) {
                     onLeftClick { _, _ ->
-                        CategoriesGUI(player, backButton = true).open()
+                        CategoriesGUI(player, pass, backButton = true).open()
                     }
                 }
             )

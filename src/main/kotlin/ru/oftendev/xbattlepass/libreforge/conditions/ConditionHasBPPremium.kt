@@ -5,8 +5,17 @@ import com.willfp.libreforge.*
 import com.willfp.libreforge.conditions.Condition
 import org.bukkit.entity.Player
 import ru.oftendev.xbattlepass.api.hasPremium
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 
 object ConditionHasBPPremium: Condition<NoCompileData>("has_premium_battlepass") {
+    override val arguments: ConfigArguments = arguments {
+        require("battlepass",
+            "You must specify a battlepass to check premium in!",
+            {passId -> BattlePasses.getByID(passId)},
+            {battlepass -> battlepass != null}
+        )
+    }
+
     override fun isMet(
         dispatcher: Dispatcher<*>,
         config: Config,
@@ -15,6 +24,8 @@ object ConditionHasBPPremium: Condition<NoCompileData>("has_premium_battlepass")
     ): Boolean {
         val player = dispatcher.get<Player>() ?: return false
 
-        return player.hasPremium
+        val pass = BattlePasses.getByID(config.getString("battlepass")) ?: return false
+
+        return player.hasPremium(pass)
     }
 }

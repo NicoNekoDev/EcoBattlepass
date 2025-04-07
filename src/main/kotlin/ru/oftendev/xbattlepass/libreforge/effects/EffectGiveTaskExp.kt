@@ -7,17 +7,19 @@ import com.willfp.libreforge.arguments
 import com.willfp.libreforge.effects.Effect
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
-import ru.oftendev.xbattlepass.api.giveBPExperience
-import ru.oftendev.xbattlepass.api.giveExactBPExperience
 import ru.oftendev.xbattlepass.api.giveTaskExperience
-import ru.oftendev.xbattlepass.battlepass.BattlePass
-import ru.oftendev.xbattlepass.categories.Categories
+import ru.oftendev.xbattlepass.battlepass.BattlePasses
 
 object EffectGiveTaskExp: Effect<NoCompileData>("give_battlepass_task_exp") {
     override val arguments: ConfigArguments = arguments {
         require("amount", "You must specify the exp amount!")
         require("task", "You must specify the task to give exp for!")
         require("quest", "You must specify the quest to give exp for!")
+        require("battlepass",
+            "You must specify a battlepass to check premium in!",
+            {passId -> BattlePasses.getByID(passId)},
+            {battlepass -> battlepass != null}
+        )
     }
 
     override val parameters: Set<TriggerParameter> = setOf(TriggerParameter.PLAYER)
@@ -27,8 +29,9 @@ object EffectGiveTaskExp: Effect<NoCompileData>("give_battlepass_task_exp") {
         val amount = config.getDoubleFromExpression("amount", player)
         val task = config.getString("task")
         val quest = config.getString("quest")
+        val pass = BattlePasses.getByID(config.getString("battlepass")) ?: return false
 
-        val activeQuest = BattlePass.getActiveQuest(quest) ?: return false
+        val activeQuest = pass.getActiveQuest(quest) ?: return false
 
         val activeTask = activeQuest.tasks.firstOrNull { it.parent.id.equals(task, true) } ?: return false
 

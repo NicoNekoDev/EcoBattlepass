@@ -3,10 +3,10 @@ package ru.oftendev.xbattlepass.quests
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
-import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.util.formatEco
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
+import ru.oftendev.xbattlepass.api.setCompletedQuest
 import ru.oftendev.xbattlepass.categories.Category
 import ru.oftendev.xbattlepass.msToString
 import ru.oftendev.xbattlepass.plugin
@@ -26,6 +26,13 @@ class ActiveBattleQuest(val config: Config, val category: Category) {
         return plugin.configYml.getString("quests-icon.name").replace(
             "%quest_name%", parent.displayName
         ).formatEco(player, true)
+    }
+
+    fun reset(player: OfflinePlayer) {
+        player.setCompletedQuest(this, false)
+        this.tasks.forEach {
+            it.reset(player)
+        }
     }
 
     fun getFormattedLore(player: Player): List<String> {
