@@ -1,10 +1,10 @@
-name: "&6Example Battlepass"
+name: "&6Season 1 Battlepass"
 
 battlepass:
   xp-formula: 1.5 * %level% + 5 # The formula to calculate the XP needed to reach the next tier
   max-tier: 100 # The maximum tier of the battle pass
   command: 'battlepass' # The command to open the battle pass GUI
-  premium-permission: "example.pass.premium"
+  premium-permission: "xbattlepass.pass.premium"
   battlepass-start: 2025-01-01 00:00 # The date the battle pass starts, used for scheduling start. Format: YYYY-MM-DD HH:MM
   battlepass-end: 2025-05-01 00:00 # The date the battle pass starts, used for scheduling start. Format: YYYY-MM-DD HH:MM
 
