@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack
 import ru.oftendev.xbattlepass.api.hasCompletedQuest
 import ru.oftendev.xbattlepass.battlepass.BattlePass
 import ru.oftendev.xbattlepass.battlepass.BattlePasses
+import ru.oftendev.xbattlepass.msToString
 import ru.oftendev.xbattlepass.plugin
 import ru.oftendev.xbattlepass.quests.ActiveBattleQuest
 import java.time.LocalDateTime
@@ -97,6 +98,8 @@ class Category(private val _id: String, val config: Config): Registrable {
     }
 
     fun getDisplayItem(player: Player): ItemStack {
+        val key = this.getDisplayableStatusKey()
+        val formattedTime = msToString(this.getDisplayableMs())
         return ItemStackBuilder(item.item.clone())
             .setDisplayName(name.replace("%completed%", getCompleted(player).toString())
                 .replace("%total%", this.quests.size.toString()).formatEco(formatPlaceholders = true))
@@ -104,6 +107,8 @@ class Category(private val _id: String, val config: Config): Registrable {
                 .map {
                     it.replace("%completed%", getCompleted(player).toString())
                         .replace("%total%", this.quests.size.toString())
+                        .replace("%time%", this.config.getString("timer-format.$key")
+                            .replace("%time%", formattedTime))
                 }
                 .formatEco(formatPlaceholders = true))
             .build()
@@ -128,7 +133,7 @@ class Category(private val _id: String, val config: Config): Registrable {
     fun getDisplayableStatusKey(): String {
         return if (this.isActive) {
             val resetDate = getNextResetDate()
-            if (resetDate != null && resetDate < (endDate ?: LocalDateTime.now())) {
+            if (resetDate != null && (endDate == null || resetDate.isBefore(endDate))) {
                 "reset"
             } else if (endDate != null) {
                 "end"

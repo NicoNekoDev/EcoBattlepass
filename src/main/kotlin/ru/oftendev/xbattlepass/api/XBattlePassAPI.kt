@@ -58,7 +58,7 @@ fun OfflinePlayer.hasCompletedQuest(quest: ActiveBattleQuest): Boolean {
     if (this.profile.read(quest.completedKey)) {
         return true
     } else {
-        if (quest.tasks.count { this.hasCompletedTask(it) } >= quest.parent.taskAmount) {
+        if (quest.tasks.all { this.hasCompletedTask(it) }) {
             this.profile.write(quest.completedKey, true)
             return true
         }

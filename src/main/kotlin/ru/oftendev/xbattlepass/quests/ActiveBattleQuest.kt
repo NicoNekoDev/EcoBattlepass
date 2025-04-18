@@ -20,7 +20,9 @@ class ActiveBattleQuest(val config: Config, val category: Category) {
         false
     )
 
-    val tasks = parent.tasks.map { it.toActiveBattleTask(this) }
+    private val _tasks = parent.tasks.map { it.toActiveBattleTask(this) }
+
+    val tasks = parent.tasks.map { it.toActiveBattleTask(this) }.shuffled().take(parent.taskAmount)
 
     fun getFormattedName(player: Player): String {
         return plugin.configYml.getString("quests-icon.name").replace(
@@ -30,7 +32,7 @@ class ActiveBattleQuest(val config: Config, val category: Category) {
 
     fun reset(player: OfflinePlayer) {
         player.setCompletedQuest(this, false)
-        this.tasks.forEach {
+        this._tasks.forEach {
             it.reset(player)
         }
     }
@@ -61,6 +63,8 @@ class ActiveBattleQuest(val config: Config, val category: Category) {
                         .getString("quests-icon.timer-format.$key")
                         .replace("%time%", formattedTime)),
                 )
+            } else {
+                result.add(line.formatEco(player, true))
             }
         }
 
