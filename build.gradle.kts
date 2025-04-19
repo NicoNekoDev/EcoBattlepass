@@ -7,7 +7,7 @@ plugins {
     id("com.willfp.libreforge-gradle-plugin") version "1.0.2"
 }
 
-group = "ru.oftendev"
+group = "com.exanthiax"
 version = findProperty("version")!!
 val libreforgeVersion = findProperty("libreforge-version")
 
@@ -53,7 +53,7 @@ allprojects {
         shadowJar {
             exclude("kotlin/**")
             exclude("kotlinx/**")
-            relocate("com.willfp.ecomponent", "ru.oftendev.xbattlepass.ecomponent")
+            relocate("com.willfp.ecomponent", "com.exanthiax.xbattlepass.ecomponent")
         }
         compileJava {
             options.isDeprecation = true

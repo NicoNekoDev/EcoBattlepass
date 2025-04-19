@@ -1,6 +1,6 @@
 name: ${pluginName}
 version: ${version}
-main: ru.oftendev.xbattlepass.XBattlePass
+main: com.exanthiax.xbattlepass.XBattlePass
 author: Exanthiax, _OfTeN_
 api-version: 1.19
 depend:

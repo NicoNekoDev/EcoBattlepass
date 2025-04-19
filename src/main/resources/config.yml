@@ -120,9 +120,7 @@ tiers-gui:
       name: "&aTier %tier_numeral%"
       lore:
         - "&7Rewards:"
-        - "&7Free:"
         - "%free-rewards%"
-        - "&7Premium:"
         - "%premium-rewards%"
         - ""
         - "&aCLAIM"
@@ -132,9 +130,7 @@ tiers-gui:
       name: "&eTier %tier_numeral%"
       lore:
         - "&7Rewards:"
-        - "&7Free:"
         - "%free-rewards%"
-        - "&7Premium:"
         - "%premium-rewards%"
         - ""
         - "&fProgress:"
@@ -146,9 +142,7 @@ tiers-gui:
       name: "&cTier %tier_numeral%"
       lore:
         - "&7Rewards:"
-        - "&7Free:"
         - "%free-rewards%"
-        - "&7Premium:"
         - "%premium-rewards%"
         - ""
         - "&cLOCKED"
@@ -158,9 +152,7 @@ tiers-gui:
       name: "&aTier %tier_numeral%"
       lore:
         - "&7Rewards:"
-        - "&7Free:"
         - "%free-rewards%"
-        - "&7Premium:"
         - "%premium-rewards%"
         - ""
         - "&aCLAIMED"
@@ -184,11 +176,11 @@ categories-gui:
     materials:
       - black_stained_glass_pane
     pattern:
-    # For this GUI, "c" represents a slot for a category.
-    # Categories are sorted in the order they are in the categories.yml file.
+      # For this GUI, "c" represents a slot for a category.
+      # Categories are sorted in the order they are in the categories.yml file.
       - "111111111"
       - "1c1c1c1c1"
-      - "1c1c1c1c1"
+      - "1111c1111"
       - "111111111"
       - "111111111"
   next-page:
@@ -268,6 +260,7 @@ quests-icon:
     - "&7%quest_description%" # This shows the description of the quest
     - ""
     - "&a%quest_tasks%" # This shows the tasks and their progress
+    - ""
     - "&7%quest_tier%" # Premium or Both
     - "&7%quest_timer%" # This shows either: When it unlocks, when it started, or the time until it resets.
 
