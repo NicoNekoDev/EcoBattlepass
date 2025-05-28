@@ -52,6 +52,9 @@ battlepass-gui:
         row: 2
         column: 6
 
+    # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+    custom-slots: [ ]
+
 # GUI Configuration for the Tiers GUI (/battlepass tiers)
 tiers-gui:
   title: "xBattlepass: Tiers"
@@ -202,6 +205,9 @@ categories-gui:
     row: 5
     column: 4
 
+    # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+    custom-slots: [ ]
+
 # GUI Configuration for the Quests GUI
 quests-gui:
   title: "%category%: %page%"
@@ -243,6 +249,9 @@ quests-gui:
       inactive: [ ]
     row: 5
     column: 4
+
+    # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+    custom-slots: [ ]
 
 # GUI Configuration for the Quest Icon
 quests-icon:
