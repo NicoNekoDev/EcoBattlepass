@@ -22,6 +22,7 @@ import com.exanthiax.xbattlepass.commands.dynamic.DynamicPassCommand
 import com.exanthiax.xbattlepass.plugin
 import com.exanthiax.xbattlepass.quests.ActiveBattleQuest
 import com.exanthiax.xbattlepass.tiers.BPTier
+import com.willfp.eco.util.toNumeral
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -38,6 +39,13 @@ class BattlePass(private val _id: String, val config: Config): Registrable {
             "tier_$_id"
         ) {
                 player -> player.getTier(this).toNiceString()
+        }.register()
+
+        PlayerPlaceholder(
+            plugin,
+            "tier_${_id}_numeral"
+        ) {
+                player -> player.getTier(this).toNumeral()
         }.register()
 
         PlayerPlaceholder(
