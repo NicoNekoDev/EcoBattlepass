@@ -161,7 +161,7 @@ tiers-gui:
         - "&aCLAIMED"
 
     # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
-  custom-slots: [ ]
+    custom-slots: [ ]
 
 # GUI Configuration for the Categories GUI (/battlepass quests)
 categories-gui:
