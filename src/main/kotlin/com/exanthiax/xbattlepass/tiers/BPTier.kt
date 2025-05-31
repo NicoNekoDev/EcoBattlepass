@@ -62,10 +62,8 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
                 if (rwds.isNotEmpty()) {
                     for (rewardLine in rwds) {
                         if (isFormatted(rewardLine)) {
-                            // If already formatted, don't apply config formatting
                             result.add(string.replace("%free-rewards%", rewardLine))
                         } else {
-                            // Apply config formatting for the reward line
                             result.add(
                                 string.replace(
                                     "%free-rewards%",
@@ -88,10 +86,8 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
                 if (rwds.isNotEmpty()) {
                     for (rewardLine in rwds) {
                         if (isFormatted(rewardLine)) {
-                            // If already formatted, don't apply config formatting
                             result.add(string.replace("%premium-rewards%", rewardLine))
                         } else {
-                            // Apply config formatting for the reward line
                             result.add(
                                 string.replace(
                                     "%premium-rewards%",
