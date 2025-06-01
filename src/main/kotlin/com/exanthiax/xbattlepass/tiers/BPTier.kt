@@ -45,6 +45,7 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
     private fun replaceBasicPlaceholders(input: String, player: Player): String {
         return input
             .replace("%pass%", battlepass.name)
+            .replace("%claimable_tiers%", battlepass.getClaimable(player).toNiceString())
             .replace("%percentage_progress%", battlepass.getFormattedProgress(player))
             .replace("%current_bp_xp%", player.getPassExp(battlepass).toNiceString())
             .replace("%current_bp_xp_formatted%", player.getPassExp(battlepass).formatWithCommas())
