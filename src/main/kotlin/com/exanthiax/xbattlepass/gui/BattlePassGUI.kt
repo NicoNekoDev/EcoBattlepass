@@ -1,5 +1,6 @@
 package com.exanthiax.xbattlepass.gui
 
+import com.exanthiax.xbattlepass.api.getTier
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.ConfigSlot
@@ -11,11 +12,13 @@ import com.willfp.eco.util.formatEco
 import org.bukkit.entity.Player
 import com.exanthiax.xbattlepass.battlepass.BattlePass
 import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.tiers.BPTier
 
 object BattlePassGUI {
     fun createAndOpen(player: Player, pass: BattlePass) {
         val maskPattern = plugin.configYml.getStrings("battlepass-gui.mask.pattern").toTypedArray()
         val maskItems = MaskItems.fromItemNames(plugin.configYml.getStrings("battlepass-gui.mask.materials"))
+        val level = player.getTier(pass) // assuming you have a method like this to get player's current tier
 
         val menu = menu(maskPattern.size) {
             title = plugin.configYml.getString("battlepass-gui.title")
@@ -36,7 +39,11 @@ object BattlePassGUI {
                     ItemStackBuilder(Items.lookup(plugin.configYml.getString("battlepass-gui.buttons.tiers.item")))
                         .setDisplayName(plugin.configYml.getString("battlepass-gui.buttons.tiers.name"))
                         .addLoreLines(
-                            plugin.configYml.getStrings("battlepass-gui.buttons.tiers.lore")
+                            BPTier(level, pass)
+                                .format(
+                                    plugin.configYml.getStrings("battlepass-gui.buttons.tiers.lore"),
+                                    player
+                                )
                         )
                         .build()
                 ) {

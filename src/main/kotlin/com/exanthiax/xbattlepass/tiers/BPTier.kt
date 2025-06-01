@@ -1,15 +1,15 @@
 package com.exanthiax.xbattlepass.tiers
 
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.util.formatEco
-import com.willfp.eco.util.toNiceString
-import com.willfp.eco.util.toNumeral
-import org.bukkit.entity.Player
 import com.exanthiax.xbattlepass.api.getPassExp
 import com.exanthiax.xbattlepass.battlepass.BattlePass
 import com.exanthiax.xbattlepass.battlepass.BattlePasses
 import com.exanthiax.xbattlepass.plugin
 import com.exanthiax.xbattlepass.rewards.Rewards
+import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.util.formatEco
+import com.willfp.eco.util.toNiceString
+import com.willfp.eco.util.toNumeral
+import org.bukkit.entity.Player
 
 class BPTier(val config: Config, val battlepass: BattlePass) {
     constructor(num: Int, battlepass: BattlePass) : this(
@@ -25,6 +25,7 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
     fun getRewardsFormatted(tierType: TierType, player: Player): List<String> {
         val result = mutableListOf<String>()
         val format = BattlePasses.getRewardsFormat(tierType)
+
         for (reward in rewards) {
             if (reward.tier != tierType) continue
             result.add(
@@ -36,18 +37,22 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
                 }
             )
         }
+
         return result.formatEco(player = player)
     }
 
-    fun format(string: String, player: Player): String {
-        return string.replace("%percentage_progress%", battlepass.getFormattedProgress(player))
+    private fun replaceBasicPlaceholders(input: String, player: Player): String {
+        return input
+            .replace("%pass%", battlepass.name)
+            .replace("%percentage_progress%", battlepass.getFormattedProgress(player))
             .replace("%current_xp%", player.getPassExp(battlepass).toNiceString())
             .replace("%required_xp%", battlepass.getFormattedRequired(player))
             .replace("%tier%", this.number.toNiceString())
             .replace("%tier_numeral%", this.number.toNumeral())
+            .replace("%next_tier%", (this.number + 1).toNiceString())
+            .replace("%next_tier_numeral%", (this.number + 1).toNumeral())
     }
 
-    // Check if the string is preformatted
     fun isFormatted(line: String): Boolean {
         return line.startsWith("&") || line.startsWith("§")
     }
@@ -105,18 +110,17 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
                         )
                     )
                 }
-            } else {
-                result.add(
-                    string.replace("%percentage_progress%", battlepass.getFormattedProgress(player))
-                        .replace("%current_xp%", player.getPassExp(battlepass).toNiceString())
-                        .replace("%required_xp%", battlepass.getFormattedRequired(player))
-                        .replace("%tier%", this.number.toNiceString())
-                        .replace("%tier_numeral%", this.number.toNumeral())
-                )
+            }
+            else {
+                result.add(replaceBasicPlaceholders(string, player))
             }
         }
 
         return result.formatEco(player)
+    }
+
+    fun format(singleString: String, player: Player): List<String> {
+        return format(listOf(singleString), player)
     }
 }
 

@@ -4,6 +4,7 @@ import com.exanthiax.xbattlepass.api.getTier
 import com.exanthiax.xbattlepass.api.hasReceivedTier
 import com.exanthiax.xbattlepass.api.receiveTier
 import com.exanthiax.xbattlepass.battlepass.BattlePass
+import com.exanthiax.xbattlepass.tiers.BPTier
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.gui.menu.Menu
@@ -12,6 +13,7 @@ import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.core.map.nestedMap
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NumberUtils.evaluateExpression
+import com.willfp.eco.util.formatEco
 import com.willfp.eco.util.openMenu
 import com.willfp.ecomponent.components.LevelState
 import org.bukkit.entity.Player
@@ -47,8 +49,7 @@ class BattleTierComponent(
 
             ItemStackBuilder(Items.lookup(plugin.configYml.getString("tiers-gui.buttons.$key.item")))
                 .setDisplayName(
-                    plugin.configYml.getString("tiers-gui.buttons.$key.name")
-                        .let { tier.format(it, player) }
+                    tier.format(plugin.configYml.getString("tiers-gui.buttons.$key.name"), player).firstOrNull() ?: ""
                 )
                 .addLoreLines(
                     tier.format(
