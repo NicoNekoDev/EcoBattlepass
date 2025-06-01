@@ -1,8 +1,8 @@
 display:
   display-name: "Chatter"
   lore:
-    - "&8»&7 Send &cI am the ultimate warrior! &a%required%&7 times"
-    - "&8»&7 Completed: &a%current%&7/&a%required%"
+    - "&8»&7 Send &cI am the ultimate warrior! &a%required_task_xp%&7 times"
+    - "&8»&7 Completed: &a%current_task_xp%&7/&a%required_task_xp%"
 
 xp-gain-methods:
   - trigger: send_message

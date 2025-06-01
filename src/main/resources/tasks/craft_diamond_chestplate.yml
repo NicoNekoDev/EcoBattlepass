@@ -1,8 +1,8 @@
 display:
   display-name: "Armorer"
   lore:
-    - "&8»&7 Craft &a%required%&7 diamond chestplates"
-    - "&8»&7 Completed: &a%current%&7/&a%required%"
+    - "&8»&7 Craft &a%required_task_xp%&7 diamond chestplates"
+    - "&8»&7 Completed: &a%current_task_xp%&7/&a%required_task_xp%"
 
 xp-gain-methods:
   - trigger: craft

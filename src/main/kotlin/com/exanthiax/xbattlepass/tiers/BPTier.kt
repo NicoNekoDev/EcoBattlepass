@@ -7,6 +7,7 @@ import com.exanthiax.xbattlepass.plugin
 import com.exanthiax.xbattlepass.rewards.Rewards
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.util.formatEco
+import com.willfp.eco.util.formatWithCommas
 import com.willfp.eco.util.toNiceString
 import com.willfp.eco.util.toNumeral
 import org.bukkit.entity.Player
@@ -45,8 +46,10 @@ class BPTier(val config: Config, val battlepass: BattlePass) {
         return input
             .replace("%pass%", battlepass.name)
             .replace("%percentage_progress%", battlepass.getFormattedProgress(player))
-            .replace("%current_xp%", player.getPassExp(battlepass).toNiceString())
-            .replace("%required_xp%", battlepass.getFormattedRequired(player))
+            .replace("%current_bp_xp%", player.getPassExp(battlepass).toNiceString())
+            .replace("%current_bp_xp_formatted%", player.getPassExp(battlepass).formatWithCommas())
+            .replace("%required_bp_xp%", battlepass.getFormattedRequired(player))
+            .replace("%required_bp_xp_formatted%", battlepass.getFormattedRequired(player).toDouble().formatWithCommas())
             .replace("%tier%", this.number.toNiceString())
             .replace("%tier_numeral%", this.number.toNumeral())
             .replace("%next_tier%", (this.number + 1).toNiceString())

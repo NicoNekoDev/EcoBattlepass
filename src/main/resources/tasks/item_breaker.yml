@@ -1,8 +1,8 @@
 display:
   display-name: "Butter Tools"
   lore:
-    - "&8»&7 Break &a%required%&7 golden tools"
-    - "&8»&7 Completed: &a%current%&7/&a%required%"
+    - "&8»&7 Break &a%required_task_xp%&7 golden tools"
+    - "&8»&7 Completed: &a%current_task_xp%&7/&a%required_task_xp%"
 
 xp-gain-methods:
   - trigger: item_break

@@ -138,7 +138,7 @@ tiers-gui:
         - ""
         - "&fProgress:"
         - "&8» &e%percentage_progress%%"
-        - "&8» &e%current_xp%&8/&7%required_xp% &fXP"
+        - "&8» &e%current_bp_xp%&8/&7%required_bp_xp% &fXP"
 
     locked:
       item: red_stained_glass_pane

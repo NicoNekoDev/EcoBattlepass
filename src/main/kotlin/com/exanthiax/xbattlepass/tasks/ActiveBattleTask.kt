@@ -1,23 +1,21 @@
 package com.exanthiax.xbattlepass.tasks
 
+import com.exanthiax.xbattlepass.api.*
+import com.exanthiax.xbattlepass.api.events.PlayerTaskExpGainEvent
+import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.quests.ActiveBattleQuest
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.util.formatEco
+import com.willfp.eco.util.formatWithCommas
 import com.willfp.eco.util.toNiceString
 import com.willfp.libreforge.counters.Accumulator
-import com.willfp.libreforge.counters.Counters
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import org.bukkit.event.Cancellable
 import org.bukkit.inventory.ItemStack
-import com.exanthiax.xbattlepass.api.*
-import com.exanthiax.xbattlepass.api.events.PlayerTaskExpGainEvent
-import com.exanthiax.xbattlepass.plugin
-import com.exanthiax.xbattlepass.quests.ActiveBattleQuest
-import com.exanthiax.xbattlepass.quests.BattleQuest
 
 class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
     val parent = BattleTasks.getByID(config.getString("id"))!!
@@ -55,6 +53,15 @@ class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
         }
     }
 
+    private fun replaceBasicPlaceholders(input: String, player: Player): String {
+        return input
+            .replace("%task_name%", this.parent.name)
+            .replace("%current_task_xp%", player.taskProgress(this).toNiceString())
+            .replace("%current_task_xp_formatted%", player.taskProgress(this).formatWithCommas())
+            .replace("%required_task_xp%", this.requiredXP.toNiceString())
+            .replace("%required_task_xp_formatted%", this.requiredXP.formatWithCommas())
+    }
+
     fun gainExperience(player: Player, count: Double) {
         val event = PlayerTaskExpGainEvent(player, this, count)
         Bukkit.getPluginManager().callEvent(event)
@@ -71,16 +78,15 @@ class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
 
     fun getDisplayItem(player: Player): ItemStack {
         return ItemStackBuilder(parent.testable)
-            .setDisplayName(parent.name
-                .replace("%current%", player.taskProgress(this).toNiceString())
-                .replace("%required%", this.requiredXP.toNiceString())
-                .formatEco(formatPlaceholders = true))
-            .addLoreLines(parent.lore
-                .map {
-                    it.replace("%current%", player.taskProgress(this).toNiceString())
-                        .replace("%required%", this.requiredXP.toNiceString())
-                }
-                .formatEco(formatPlaceholders = true))
+            .setDisplayName(
+                replaceBasicPlaceholders(parent.name, player)
+                    .formatEco(formatPlaceholders = true)
+            )
+            .addLoreLines(
+                parent.lore
+                    .map { replaceBasicPlaceholders(it, player) }
+                    .formatEco(formatPlaceholders = true)
+            )
             .build()
     }
 
@@ -89,15 +95,17 @@ class ActiveBattleTask(val config: Config, val quest: ActiveBattleQuest) {
         val tasksFormat = plugin.configYml.getStrings("quests-icon.tasks-format")
 
         for (line in tasksFormat) {
-            if (line.contains("%task_name%", true)) {
-                result.add(line.replace("%task_name%", this.parent.name.replace("%current%",
-                    player.taskProgress(this).toNiceString())
-                    .replace("%required%", this.requiredXP.toNiceString())))
-            } else if (line.contains("%task_lore%", true)) {
-                for (loreLine in this.parent.lore) {
-                    result.add(line.replace("%task_lore%", loreLine.replace("%current%",
-                        player.taskProgress(this).toNiceString())
-                        .replace("%required%", this.requiredXP.toNiceString())))
+            when {
+                line.contains("%task_name%", ignoreCase = true) -> {
+                    result.add(line.replace("%task_name%", replaceBasicPlaceholders(this.parent.name, player)))
+                }
+                line.contains("%task_lore%", ignoreCase = true) -> {
+                    for (loreLine in this.parent.lore) {
+                        result.add(line.replace("%task_lore%", replaceBasicPlaceholders(loreLine, player)))
+                    }
+                }
+                else -> {
+                    result.add(line)
                 }
             }
         }

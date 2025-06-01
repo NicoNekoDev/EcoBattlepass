@@ -1,8 +1,8 @@
 display:
   display-name: "Why Squid?"
   lore:
-    - "&8»&7 Leash &a%required%&7 squids"
-    - "&8»&7 Completed: &a%current%&7/&a%required%"
+    - "&8»&7 Leash &a%required_task_xp%&7 squids"
+    - "&8»&7 Completed: &a%current_task_xp%&7/&a%required_task_xp%"
 
 xp-gain-methods:
   - trigger: leash_entity
