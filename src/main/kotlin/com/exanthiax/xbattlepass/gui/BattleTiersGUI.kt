@@ -4,7 +4,6 @@ import com.exanthiax.xbattlepass.api.getTier
 import com.exanthiax.xbattlepass.battlepass.BattlePass
 import com.exanthiax.xbattlepass.gui.components.BattleTierComponent
 import com.exanthiax.xbattlepass.plugin
-import com.exanthiax.xbattlepass.utils.SoundUtils
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.menu.MenuLayer
 import com.willfp.eco.core.gui.page.PageChanger
@@ -78,18 +77,19 @@ object BattleTiersGUI {
                 )
             )
 
-            setSlot(
-                plugin.configYml.getInt("tiers-gui.buttons.close.location.row"),
-                plugin.configYml.getInt("tiers-gui.buttons.close.location.column"),
-                slot(
-                    ItemStackBuilder(Items.lookup(plugin.configYml.getString("tiers-gui.buttons.close.material")))
-                        .setDisplayName(plugin.configYml.getString("tiers-gui.buttons.close.name"))
-                        .build()
-                ) {
-                    onLeftClick { event, _ ->
-                        event.whoClicked.closeInventory() }
-                }
-            )
+            if (plugin.configYml.getBool("tiers-gui.buttons.close.enabled"))
+                setSlot(
+                    plugin.configYml.getInt("tiers-gui.buttons.close.location.row"),
+                    plugin.configYml.getInt("tiers-gui.buttons.close.location.column"),
+                    slot(
+                        ItemStackBuilder(Items.lookup(plugin.configYml.getString("tiers-gui.buttons.close.material")))
+                            .setDisplayName(plugin.configYml.getString("tiers-gui.buttons.close.name"))
+                            .build()
+                    ) {
+                        onLeftClick { event, _ ->
+                            event.whoClicked.closeInventory() }
+                    }
+                )
 
             for (config in plugin.configYml.getSubsections("tiers-gui.buttons.custom-slots")) {
                 setSlot(

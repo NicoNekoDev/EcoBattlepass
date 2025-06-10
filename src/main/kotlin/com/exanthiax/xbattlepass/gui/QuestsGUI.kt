@@ -64,6 +64,21 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
                 ConfigSlot(config)
             )
         }
+        if (plugin.configYml.getBool("quests-gui.close.enabled")) {
+            menu.setSlot(
+                plugin.configYml.getInt("quests-gui.close.row"),
+                plugin.configYml.getInt("quests-gui.close.column"),
+                Slot.builder(
+                    ItemStackBuilder(
+                        Items.lookup(plugin.configYml.getString("quests-gui.close.material"))
+                    ).setDisplayName(plugin.configYml.getString("quests-gui.close.name"))
+                        .addLoreLines(plugin.configYml.getFormattedStrings("quests-gui.close.lore"))
+                        .build()
+                ).onLeftClick { event, _ ->
+                    event.whoClicked.closeInventory()
+                }.build()
+            )
+        }
         menu.build().open(player)
     }
 

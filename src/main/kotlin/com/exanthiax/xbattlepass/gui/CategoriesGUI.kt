@@ -62,6 +62,23 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
                 ConfigSlot(config)
             )
         }
+
+        if (plugin.configYml.getBool("categories-gui.close.enabled")) {
+            menu.setSlot(
+                plugin.configYml.getInt("categories-gui.close.row"),
+                plugin.configYml.getInt("categories-gui.close.column"),
+                Slot.builder(
+                    ItemStackBuilder(
+                        Items.lookup(plugin.configYml.getString("categories-gui.close.material"))
+                    ).setDisplayName(plugin.configYml.getString("categories-gui.close.name"))
+                        .addLoreLines(plugin.configYml.getFormattedStrings("categories-gui.close.lore"))
+                        .build()
+                ).onLeftClick { event, _ ->
+                    event.whoClicked.closeInventory()
+                }.build()
+            )
+        }
+
         menu.build().open(player)
     }
 

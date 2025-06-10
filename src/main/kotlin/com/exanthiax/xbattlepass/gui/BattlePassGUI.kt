@@ -68,6 +68,24 @@ object BattlePassGUI {
                 }
             )
 
+            if (plugin.configYml.getBool("battlepass-gui.buttons.close.enabled")) {
+                setSlot(
+                    plugin.configYml.getInt("battlepass-gui.buttons.close.location.row"),
+                    plugin.configYml.getInt("battlepass-gui.buttons.close.location.column"),
+                    slot(
+                        ItemStackBuilder(
+                            Items.lookup(plugin.configYml.getString("battlepass-gui.buttons.close.material"))
+                        ).setDisplayName(plugin.configYml.getString("battlepass-gui.buttons.close.name"))
+                            .addLoreLines(plugin.configYml.getFormattedStrings("battlepass-gui.buttons.close.lore"))
+                            .build()
+                    ) {
+                        onLeftClick { event, _ ->
+                            event.whoClicked.closeInventory()
+                        }
+                    }
+                )
+            }
+
             for (config in plugin.configYml.getSubsections("battlepass-gui.buttons.custom-slots")) {
                 setSlot(
                     config.getInt("row"),
