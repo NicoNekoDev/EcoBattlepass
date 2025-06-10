@@ -1,6 +1,10 @@
 package com.exanthiax.xbattlepass.gui
 
 import com.exanthiax.xbattlepass.api.getTier
+import com.exanthiax.xbattlepass.battlepass.BattlePass
+import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.tiers.BPTier
+import com.exanthiax.xbattlepass.utils.SoundUtils
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.ConfigSlot
@@ -10,9 +14,6 @@ import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.util.formatEco
 import org.bukkit.entity.Player
-import com.exanthiax.xbattlepass.battlepass.BattlePass
-import com.exanthiax.xbattlepass.plugin
-import com.exanthiax.xbattlepass.tiers.BPTier
 
 object BattlePassGUI {
     fun createAndOpen(player: Player, pass: BattlePass) {
@@ -25,12 +26,7 @@ object BattlePassGUI {
                 .replace("%pass%", pass.name)
                 .formatEco()
 
-            setMask(
-                FillerMask(
-                    maskItems,
-                    *maskPattern
-                )
-            )
+            setMask(FillerMask(maskItems, *maskPattern))
 
             setSlot(
                 plugin.configYml.getInt("battlepass-gui.buttons.tiers.location.row"),
@@ -48,6 +44,7 @@ object BattlePassGUI {
                         .build()
                 ) {
                     onLeftClick { _, _ ->
+                        SoundUtils.playIfEnabled(player, "battlepass-gui.buttons.click-sound")
                         BattleTiersGUI.createAndOpen(player, pass, true)
                     }
                 }
@@ -65,6 +62,7 @@ object BattlePassGUI {
                         .build()
                 ) {
                     onLeftClick { _, _ ->
+                        SoundUtils.playIfEnabled(player, "battlepass-gui.buttons.click-sound")
                         CategoriesGUI(player, pass, backButton = true).open()
                     }
                 }

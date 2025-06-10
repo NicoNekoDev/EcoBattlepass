@@ -12,6 +12,7 @@ import org.bukkit.entity.Player
 import com.exanthiax.xbattlepass.categories.Category
 import com.exanthiax.xbattlepass.plugin
 import com.exanthiax.xbattlepass.quests.ActiveBattleQuest
+import com.exanthiax.xbattlepass.utils.SoundUtils
 
 class QuestsGUI(private val player: Player, val category: Category, val page: Int = 1,
                 val wasBack: Boolean = false) {
@@ -87,30 +88,32 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
                 plugin.configYml.getFormattedStrings("quests-gui.next-page.lore.${getActive(nextActive)}")
             ).build()
         )
+
         if (nextActive) {
             builder.onLeftClick { _, _ ->
-                run {
-                    QuestsGUI(player, category, page + 1, wasBack = wasBack).open()
-                }
+                SoundUtils.playIfEnabled(player, "quests-gui.click-sound")
+                QuestsGUI(player, category, page + 1, wasBack = wasBack).open()
             }
         }
         return builder.build()
     }
 
     private fun prevSlot(): Slot {
+        val prevActive = page > 1 || wasBack
         val builder = Slot.builder(
             ItemStackBuilder(
-                Items.lookup(plugin.configYml.getString("quests-gui.prev-page.item.${getActive(true)}"))
+                Items.lookup(plugin.configYml.getString("quests-gui.prev-page.item.${getActive(prevActive)}"))
             ).addLoreLines(
-                plugin.configYml.getFormattedStrings("quests-gui.prev-page.lore.${getActive(true)}")
+                plugin.configYml.getFormattedStrings("quests-gui.prev-page.lore.${getActive(prevActive)}")
             ).build()
         )
-        builder.onLeftClick { _, _ ->
-            run {
-                if (page > 1) {
-                    QuestsGUI(player, category, page - 1, wasBack = wasBack).open()
-                } else {
-                    CategoriesGUI(player, category.battlepass, backButton = wasBack).open()
+
+        if (prevActive) {
+            builder.onLeftClick { _, _ ->
+                SoundUtils.playIfEnabled(player, "quests-gui.click-sound")
+                when {
+                    page > 1 -> QuestsGUI(player, category, page - 1, wasBack = wasBack).open()
+                    wasBack -> CategoriesGUI(player, category.battlepass, backButton = wasBack).open()
                 }
             }
         }

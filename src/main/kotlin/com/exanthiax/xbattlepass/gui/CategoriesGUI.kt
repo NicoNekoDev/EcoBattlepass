@@ -11,6 +11,7 @@ import org.bukkit.entity.Player
 import com.exanthiax.xbattlepass.battlepass.BattlePass
 import com.exanthiax.xbattlepass.categories.Category
 import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.utils.SoundUtils
 
 class CategoriesGUI(private val player: Player, val pass: BattlePass,
                     val page: Int = 1, val backButton: Boolean = false) {
@@ -87,9 +88,8 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
         )
         if (nextActive) {
             builder.onLeftClick { _, _ ->
-                run {
-                    CategoriesGUI(player, pass, page + 1, backButton).open()
-                }
+                SoundUtils.playIfEnabled(player, "categories-gui.click-sound")
+                CategoriesGUI(player, pass, page + 1, backButton).open()
             }
         }
         return builder.build()
@@ -104,14 +104,13 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
                 plugin.configYml.getFormattedStrings("categories-gui.prev-page.lore.${getActive(prevActive)}")
             ).build()
         )
+
         if (prevActive) {
             builder.onLeftClick { _, _ ->
-                run {
-                    if (page > 1) {
-                        CategoriesGUI(player, pass, page - 1, backButton).open()
-                    } else if (backButton) {
-                        BattlePassGUI.createAndOpen(player, pass)
-                    }
+                SoundUtils.playIfEnabled(player, "categories-gui.click-sound")
+                when {
+                    page > 1 -> CategoriesGUI(player, pass, page - 1, backButton).open()
+                    backButton -> BattlePassGUI.createAndOpen(player, pass)
                 }
             }
         }
@@ -123,15 +122,12 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
     }
 
     private fun slot(pair: Category): Slot {
-        val itemBuilder = ItemStackBuilder(
-            pair.getDisplayItem(player)
-        )
+        val itemBuilder = ItemStackBuilder(pair.getDisplayItem(player))
 
-        return Slot.builder(
-            itemBuilder.build()
-        )
+        return Slot.builder(itemBuilder.build())
             .onLeftClick { _, _, _ ->
                 if (pair.isActive) {
+                    SoundUtils.playIfEnabled(player, "categories-gui.click-sound")
                     QuestsGUI(player, pair, wasBack = backButton).open()
                 }
             }

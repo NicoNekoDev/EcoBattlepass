@@ -1,20 +1,24 @@
-package com.exanthiax.xbattlepass.listeners
+package com.exanthiax.xbattlepass.utils
 
+import com.exanthiax.xbattlepass.XBattlePass
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import com.exanthiax.xbattlepass.ConfiguredSound
 import com.exanthiax.xbattlepass.api.events.PlayerBPExpGainEvent
 import com.exanthiax.xbattlepass.api.events.PlayerQuestCompleteEvent
 import com.exanthiax.xbattlepass.api.events.PlayerRewardEvent
 import com.exanthiax.xbattlepass.api.events.PlayerTierLevelUpEvent
 import com.exanthiax.xbattlepass.api.getTier
 import com.exanthiax.xbattlepass.api.giveBPExperience
-import com.exanthiax.xbattlepass.plugin
+import org.bukkit.Sound
 
-object BattlePassListener: Listener {
+class BattlePassListener(
+    private val plugin: XBattlePass
+): Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     fun handleBPLevelUp(event: PlayerTierLevelUpEvent) {
+        val player = event.player
+
         if (event.player.getTier(event.battlepass) >= event.battlepass.maxLevel) {
             event.isCancelled = true
             return
@@ -26,13 +30,7 @@ object BattlePassListener: Listener {
             )
         )
 
-        ConfiguredSound(
-            plugin.configYml.getSubsection("sound.tier-up")
-        ).play(event.player)
-
-        // val tier = BattlePass.getTier(event.level) ?: return
-
-        // event.player.receiveTier(tier)
+        SoundUtils.playIfEnabled(player, "sound.tier-up")
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -44,15 +42,15 @@ object BattlePassListener: Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun handleQuest(event: PlayerQuestCompleteEvent) {
+        val player = event.player
+
         event.player.sendMessage(
             plugin.langYml.getMessage("quest-complete").replace(
                 "%quest%", event.quest.getFormattedName(event.player)
             )
         )
 
-        ConfiguredSound(
-            plugin.configYml.getSubsection("sound.quest-complete")
-        ).play(event.player)
+        SoundUtils.playIfEnabled(player, "sound.quest-complete")
 
         event.player.giveBPExperience(
             event.quest.category.battlepass,
@@ -63,14 +61,14 @@ object BattlePassListener: Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun handleReward(event: PlayerRewardEvent) {
+        val player = event.player
+
         event.player.sendMessage(
             plugin.langYml.getMessage("reward-claim").replace(
                 "%reward%", event.reward.getDisplayName(event.player)
             )
         )
 
-        ConfiguredSound(
-            plugin.configYml.getSubsection("sound.reward-claim")
-        ).play(event.player)
+        SoundUtils.playIfEnabled(player, "sound.reward-claim")
     }
 }

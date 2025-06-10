@@ -15,9 +15,7 @@ import net.kyori.adventure.key.Key
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import com.exanthiax.xbattlepass.battlepass.BattlePasses
-import com.exanthiax.xbattlepass.battlepass.BattlePasses.updateTaskBindings
 import com.exanthiax.xbattlepass.categories.Categories
-import com.exanthiax.xbattlepass.commands.XBattlePassCommand
 import com.exanthiax.xbattlepass.libreforge.conditions.ConditionHasBPPremium
 import com.exanthiax.xbattlepass.libreforge.conditions.ConditionHasBPTier
 import com.exanthiax.xbattlepass.libreforge.effects.*
@@ -27,7 +25,7 @@ import com.exanthiax.xbattlepass.libreforge.triggers.TriggerBPExpGain
 import com.exanthiax.xbattlepass.libreforge.triggers.TriggerBPRewardClaim
 import com.exanthiax.xbattlepass.libreforge.triggers.TriggerBPTaskComplete
 import com.exanthiax.xbattlepass.libreforge.triggers.TriggerBPTierUp
-import com.exanthiax.xbattlepass.listeners.BattlePassListener
+import com.exanthiax.xbattlepass.utils.BattlePassListener
 import com.exanthiax.xbattlepass.quests.BattleQuests
 import com.exanthiax.xbattlepass.rewards.Rewards
 import com.exanthiax.xbattlepass.tasks.BattleTasks
@@ -48,9 +46,9 @@ class XBattlePass: LibreforgePlugin() {
         )
     }
 
-    override fun loadListeners(): MutableList<Listener> {
-        return mutableListOf(
-            BattlePassListener
+    override fun loadListeners(): List<Listener> {
+        return listOf(
+            BattlePassListener(this)
         )
     }
 
@@ -142,16 +140,4 @@ fun msToString(ms: Long): String {
 
     // Format the result as a string
     return lst.joinToString(plugin.configYml.getFormattedString("time-format.split"))
-}
-
-class ConfiguredSound(private val sound: net.kyori.adventure.sound.Sound, private val enabled: Boolean = true) {
-    constructor(from: Config) : this(
-        net.kyori.adventure.sound.Sound.sound(
-        Key.key(from.getString("name")), net.kyori.adventure.sound.Sound.Source.AMBIENT,
-        from.getDouble("volume").toFloat(), from.getDouble("pitch").toFloat()),
-        from.getBool("enabled"))
-
-    fun play(player: Player) {
-        if (enabled) player.playSound(sound)
-    }
 }

@@ -4,6 +4,7 @@ import com.exanthiax.xbattlepass.api.getTier
 import com.exanthiax.xbattlepass.battlepass.BattlePass
 import com.exanthiax.xbattlepass.gui.components.BattleTierComponent
 import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.utils.SoundUtils
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.menu.MenuLayer
 import com.willfp.eco.core.gui.page.PageChanger
@@ -30,12 +31,7 @@ object BattleTiersGUI {
 
             maxPages(levelComponent.pages)
 
-            setMask(
-                FillerMask(
-                    maskItems,
-                    *maskPattern
-                )
-            )
+            setMask(FillerMask(maskItems, *maskPattern))
 
             addComponent(1, 1, levelComponent)
 
@@ -54,7 +50,9 @@ object BattleTiersGUI {
                             .setDisplayName(plugin.configYml.getString("tiers-gui.buttons.prev-page.name"))
                             .build()
                     ) {
-                        onLeftClick { _, _ -> BattlePassGUI.createAndOpen(player, pass) }
+                        onLeftClick { _, _ ->
+                            SoundUtils.playIfEnabled(player, "tiers-gui.buttons.click-sound")
+                            BattlePassGUI.createAndOpen(player, pass) }
                     }
                 )
             }
@@ -90,8 +88,8 @@ object BattleTiersGUI {
                         .build()
                 ) {
                     onLeftClick { event, _ ->
-                        event.whoClicked.closeInventory()
-                    }
+                        SoundUtils.playIfEnabled(player, "tiers-gui.buttons.click-sound")
+                        event.whoClicked.closeInventory() }
                 }
             )
 
