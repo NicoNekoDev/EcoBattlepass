@@ -48,31 +48,31 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
             )
         )
         menu.setSlot(
-            plugin.configYml.getInt("quests-gui.next-page.row"),
-            plugin.configYml.getInt("quests-gui.next-page.column"),
+            plugin.configYml.getInt("quests-gui.buttons.next-page.row"),
+            plugin.configYml.getInt("quests-gui.buttons.next-page.column"),
             nextSlot()
         )
         menu.setSlot(
-            plugin.configYml.getInt("quests-gui.prev-page.row"),
-            plugin.configYml.getInt("quests-gui.prev-page.column"),
+            plugin.configYml.getInt("quests-gui.buttons.prev-page.row"),
+            plugin.configYml.getInt("quests-gui.buttons.prev-page.column"),
             prevSlot()
         )
-        for (config in plugin.configYml.getSubsections("quests-gui.custom-slots")) {
+        for (config in plugin.configYml.getSubsections("quests-gui.buttons.custom-slots")) {
             menu.setSlot(
                 config.getInt("row"),
                 config.getInt("column"),
                 ConfigSlot(config)
             )
         }
-        if (plugin.configYml.getBool("quests-gui.close.enabled")) {
+        if (plugin.configYml.getBool("quests-gui.buttons.close.enabled")) {
             menu.setSlot(
-                plugin.configYml.getInt("quests-gui.close.row"),
-                plugin.configYml.getInt("quests-gui.close.column"),
+                plugin.configYml.getInt("quests-gui.buttons.close.row"),
+                plugin.configYml.getInt("quests-gui.buttons.close.column"),
                 Slot.builder(
                     ItemStackBuilder(
-                        Items.lookup(plugin.configYml.getString("quests-gui.close.material"))
-                    ).setDisplayName(plugin.configYml.getString("quests-gui.close.name"))
-                        .addLoreLines(plugin.configYml.getFormattedStrings("quests-gui.close.lore"))
+                        Items.lookup(plugin.configYml.getString("quests-gui.buttons.close.material"))
+                    ).setDisplayName(plugin.configYml.getString("quests-gui.buttons.close.name"))
+                        .addLoreLines(plugin.configYml.getFormattedStrings("quests-gui.buttons.close.lore"))
                         .build()
                 ).onLeftClick { event, _ ->
                     event.whoClicked.closeInventory()
@@ -98,9 +98,9 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
         val nextActive = page < getMaxPages()
         val builder = Slot.builder(
             ItemStackBuilder(
-                Items.lookup(plugin.configYml.getString("quests-gui.next-page.item.${getActive(nextActive)}"))
+                Items.lookup(plugin.configYml.getString("quests-gui.buttons.next-page.item.${getActive(nextActive)}"))
             ).addLoreLines(
-                plugin.configYml.getFormattedStrings("quests-gui.next-page.lore.${getActive(nextActive)}")
+                plugin.configYml.getFormattedStrings("quests-gui.buttons.next-page.lore.${getActive(nextActive)}")
             ).build()
         )
 
@@ -116,9 +116,9 @@ class QuestsGUI(private val player: Player, val category: Category, val page: In
         val prevActive = page > 1 || wasBack
         val builder = Slot.builder(
             ItemStackBuilder(
-                Items.lookup(plugin.configYml.getString("quests-gui.prev-page.item.${getActive(prevActive)}"))
+                Items.lookup(plugin.configYml.getString("quests-gui.buttons.prev-page.item.${getActive(prevActive)}"))
             ).addLoreLines(
-                plugin.configYml.getFormattedStrings("quests-gui.prev-page.lore.${getActive(prevActive)}")
+                plugin.configYml.getFormattedStrings("quests-gui.buttons.prev-page.lore.${getActive(prevActive)}")
             ).build()
         )
 

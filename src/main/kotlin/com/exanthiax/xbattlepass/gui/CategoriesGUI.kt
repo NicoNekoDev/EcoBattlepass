@@ -46,16 +46,16 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
             )
         )
         menu.setSlot(
-            plugin.configYml.getInt("categories-gui.next-page.row"),
-            plugin.configYml.getInt("categories-gui.next-page.column"),
+            plugin.configYml.getInt("categories-gui.buttons.next-page.row"),
+            plugin.configYml.getInt("categories-gui.buttons.next-page.column"),
             nextSlot()
         )
         menu.setSlot(
-            plugin.configYml.getInt("categories-gui.prev-page.row"),
-            plugin.configYml.getInt("categories-gui.prev-page.column"),
+            plugin.configYml.getInt("categories-gui.buttons.prev-page.row"),
+            plugin.configYml.getInt("categories-gui.buttons.prev-page.column"),
             prevSlot()
         )
-        for (config in plugin.configYml.getSubsections("categories-gui.custom-slots")) {
+        for (config in plugin.configYml.getSubsections("categories-gui.buttons.custom-slots")) {
             menu.setSlot(
                 config.getInt("row"),
                 config.getInt("column"),
@@ -63,15 +63,15 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
             )
         }
 
-        if (plugin.configYml.getBool("categories-gui.close.enabled")) {
+        if (plugin.configYml.getBool("categories-gui.buttons.close.enabled")) {
             menu.setSlot(
-                plugin.configYml.getInt("categories-gui.close.row"),
-                plugin.configYml.getInt("categories-gui.close.column"),
+                plugin.configYml.getInt("categories-gui.buttons.close.row"),
+                plugin.configYml.getInt("categories-gui.buttons.close.column"),
                 Slot.builder(
                     ItemStackBuilder(
-                        Items.lookup(plugin.configYml.getString("categories-gui.close.material"))
-                    ).setDisplayName(plugin.configYml.getString("categories-gui.close.name"))
-                        .addLoreLines(plugin.configYml.getFormattedStrings("categories-gui.close.lore"))
+                        Items.lookup(plugin.configYml.getString("categories-gui.buttons.close.material"))
+                    ).setDisplayName(plugin.configYml.getString("categories-gui.buttons.close.name"))
+                        .addLoreLines(plugin.configYml.getFormattedStrings("categories-gui.buttons.close.lore"))
                         .build()
                 ).onLeftClick { event, _ ->
                     event.whoClicked.closeInventory()
@@ -98,9 +98,9 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
         val nextActive = page < getMaxPages()
         val builder = Slot.builder(
             ItemStackBuilder(
-                Items.lookup(plugin.configYml.getString("categories-gui.next-page.item.${getActive(nextActive)}"))
+                Items.lookup(plugin.configYml.getString("categories-gui.buttons.next-page.item.${getActive(nextActive)}"))
             ).addLoreLines(
-                plugin.configYml.getFormattedStrings("categories-gui.next-page.lore.${getActive(nextActive)}")
+                plugin.configYml.getFormattedStrings("categories-gui.buttons.next-page.lore.${getActive(nextActive)}")
             ).build()
         )
         if (nextActive) {
@@ -115,9 +115,9 @@ class CategoriesGUI(private val player: Player, val pass: BattlePass,
         val prevActive = page > 1 || backButton
         val builder = Slot.builder(
             ItemStackBuilder(
-                Items.lookup(plugin.configYml.getString("categories-gui.prev-page.item.${getActive(prevActive)}"))
+                Items.lookup(plugin.configYml.getString("categories-gui.buttons.prev-page.item.${getActive(prevActive)}"))
             ).addLoreLines(
-                plugin.configYml.getFormattedStrings("categories-gui.prev-page.lore.${getActive(prevActive)}")
+                plugin.configYml.getFormattedStrings("categories-gui.buttons.prev-page.lore.${getActive(prevActive)}")
             ).build()
         )
 

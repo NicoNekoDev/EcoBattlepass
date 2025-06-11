@@ -26,6 +26,7 @@ battlepass-gui:
       - "111111111"
       - "111010111"
       - "111111111"
+
   buttons:
     tiers:
       item: lime_stained_glass_pane
@@ -39,6 +40,7 @@ battlepass-gui:
       location:
         row: 2
         column: 4
+
     quests:
       item: orange_stained_glass_pane
       name: "&6Quests"
@@ -51,6 +53,7 @@ battlepass-gui:
       location:
         row: 2
         column: 6
+
     close:
       enabled: true
       material: barrier
@@ -194,33 +197,35 @@ categories-gui:
       - "1111c1111"
       - "111111111"
       - "111111111"
-  next-page:
-    item:
-      active: orange_stained_glass_pane name:"&aNext page"
-      inactive: gray_stained_glass_pane
-    lore:
-      active: [ ]
-      inactive: [ ]
-    row: 5
-    column: 6
-  prev-page:
-    item:
-      active: orange_stained_glass_pane name:"&aPrevious page"
-      inactive: gray_stained_glass_pane
-    lore:
-      active: [ ]
-      inactive: [ ]
-    row: 5
-    column: 4
-  close:
-    enabled: true
-    material: barrier
-    name: "&cClose"
-    row: 5
-    column: 5
 
-  # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
-  custom-slots: [ ]
+  buttons:
+    next-page:
+      item:
+        active: orange_stained_glass_pane name:"&aNext page"
+        inactive: gray_stained_glass_pane
+      lore:
+        active: [ ]
+        inactive: [ ]
+      row: 5
+      column: 6
+    prev-page:
+      item:
+        active: orange_stained_glass_pane name:"&aPrevious page"
+        inactive: gray_stained_glass_pane
+      lore:
+        active: [ ]
+        inactive: [ ]
+      row: 5
+      column: 4
+    close:
+      enabled: true
+      material: barrier
+      name: "&cClose"
+      row: 5
+      column: 5
+
+    # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+    custom-slots: [ ]
 
 # GUI Configuration for the Quests GUI
 quests-gui:
@@ -245,33 +250,35 @@ quests-gui:
       - "11q1q1q11"
       - "111111111"
       - "111111111"
-  next-page:
-    item:
-      active: orange_stained_glass_pane name:"&aNext page"
-      inactive: black_stained_glass_pane name:" "
-    lore:
-      active: [ ]
-      inactive: [ ]
-    row: 5
-    column: 6
-  prev-page:
-    item:
-      active: orange_stained_glass_pane name:"&aPrevious page"
-      inactive: black_stained_glass_pane name:" "
-    lore:
-      active: [ ]
-      inactive: [ ]
-    row: 5
-    column: 4
-  close:
-    enabled: true
-    material: barrier
-    name: "&cClose"
-    row: 5
-    column: 5
 
-  # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
-  custom-slots: [ ]
+  buttons:
+    next-page:
+      item:
+        active: orange_stained_glass_pane name:"&aNext page"
+        inactive: black_stained_glass_pane name:" "
+      lore:
+        active: [ ]
+        inactive: [ ]
+      row: 5
+      column: 6
+    prev-page:
+      item:
+        active: orange_stained_glass_pane name:"&aPrevious page"
+        inactive: black_stained_glass_pane name:" "
+      lore:
+        active: [ ]
+        inactive: [ ]
+      row: 5
+      column: 4
+    close:
+      enabled: true
+      material: barrier
+      name: "&cClose"
+      row: 5
+      column: 5
+
+    # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+    custom-slots: [ ]
 
 # GUI Configuration for the Quest Icon
 quests-icon:
