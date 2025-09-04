@@ -14,4 +14,4 @@ display:
 effects:
   - id: give_item
     args:
-      item: steak 64
+      item: cooked_beef 64
