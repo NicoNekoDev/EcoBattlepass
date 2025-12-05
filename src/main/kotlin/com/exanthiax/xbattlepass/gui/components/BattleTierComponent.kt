@@ -127,19 +127,30 @@ class BattleTierComponent(
                 val tier = pass.getTier(level)
                 if (tier != null) {
                     if (key == "premium-required") {
-                        val name = tier.rewards.first { it.tier.name.equals("premium", true) }.reward.getDisplayName(player).formatEco(player, true)
-                        player.sendMessage(plugin.langYml.getMessage("premium-required")
-                            .replace("%tier%", level.toString())
-                            .replace("%reward%", name)
-                            .replace("%pass%", pass.name))
+                        val name = tier.rewards.first { it.tier.name.equals("premium", true) }
+                            .reward.getDisplayName(player)
+                            .formatEco(player, true)
+
+                        player.sendMessage(
+                            plugin.langYml.getMessage("premium-required")
+                                .replace("%tier%", level.toString())
+                                .replace("%reward%", name)
+                                .replace("%pass%", pass.name)
+                        )
                         SoundUtils.playIfEnabled(player, "sound.premium-required")
                     } else {
                         levelItemCache.invalidate(level)
                         itemCache[levelState]?.remove(level)
+
                         if (key == "unlocked") player.receiveTier(tier) else player.receiveTierPremiumOnly(tier)
+
                         player.openMenu?.refresh(player)
                     }
                 }
+            }
+        } else if (key == "locked" || key == "in-progress") {
+            {
+                SoundUtils.playIfEnabled(player, "sound.reward-locked")
             }
         } else {
             {}

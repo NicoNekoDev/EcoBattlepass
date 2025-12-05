@@ -8,6 +8,7 @@ import com.exanthiax.xbattlepass.api.hasPremium
 import com.exanthiax.xbattlepass.api.setPremium
 import com.exanthiax.xbattlepass.battlepass.BattlePasses
 import com.exanthiax.xbattlepass.plugin
+import com.exanthiax.xbattlepass.utils.SoundUtils
 import com.willfp.eco.util.formatEco
 
 object SetPremiumCommand : PluginCommand(
@@ -66,6 +67,10 @@ object SetPremiumCommand : PluginCommand(
         }
 
         player.setPremium(pass, setPremium)
+
+        if (setPremium) {
+            SoundUtils.playIfEnabled(player, "sound.premium-unlocked")
+        }
 
         val messageKey = if (setPremium) "premium-given" else "premium-removed"
         sender.sendMessage(
