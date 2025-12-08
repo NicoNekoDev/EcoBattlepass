@@ -24,6 +24,7 @@ messages:
   # Tier and quest messages
   tier-up: "&7You have tiered up to &a%tier%&7."
   quest-complete: "&7You have completed quest &a%quest%&7."
+  completed-task: "&7Successfully completed task '&e%task%&7' in &r%pass% &7for &6%playername%&7."
   reward-claim: "&7You have received reward &a%reward%&7."
   premium-required: "&cYou need to have the premium &6%pass% &cto claim &a%reward%&c!"
   given-task-progress: "&7Successfully given &b%amount%&7 task progress for &e%task%&7 in &r%pass% &7to &6%playername%&7."
