@@ -40,7 +40,7 @@ allprojects {
     dependencies {
         compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
         compileOnly (fileTree(mapOf("dir" to "lib", "include" to listOf("*.jar"))))
-        compileOnly ("com.willfp:eco:6.75.2")
+        compileOnly ("com.willfp:eco:6.77.6")
         compileOnly("com.github.ben-manes.caffeine:caffeine:3.0.5")
         implementation("com.willfp:ecomponent:1.4.1")
     }
