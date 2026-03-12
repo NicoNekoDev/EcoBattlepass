@@ -17,11 +17,17 @@ base {
     archivesName.set(project.name)
 }
 
+dependencies {
+    project.project(project(":eco-core").path).subprojects {
+        implementation(this)
+    }
+}
+
 allprojects {
     apply(plugin = "java")
     apply(plugin = "kotlin")
     apply(plugin = "maven-publish")
-    apply(plugin = "com.github.johnrengelman.shadow")
+    apply(plugin = "com.gradleup.shadow")
 
     repositories {
         mavenCentral()
@@ -35,15 +41,9 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-
         compileOnly("com.willfp:eco:7.0.0")
         compileOnly("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
         compileOnly("com.github.ben-manes.caffeine:caffeine:3.2.3")
-
-        implementation("com.willfp:ecomponent:1.4.1")
-
-        compileOnly (fileTree(mapOf("dir" to "lib", "include" to listOf("*.jar"))))
     }
 
     java {
